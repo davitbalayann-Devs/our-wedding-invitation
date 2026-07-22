@@ -498,6 +498,7 @@ html.is-native-scroll [data-scroll-item] {
   transform: rotate(-27.27deg);
   filter: drop-shadow(-10px 1px 12px rgba(0, 0, 0, 0.2));
   transform-origin: center center;
+  animation: way-car-drift 5.5s ease-in-out infinite;
 }
 
 /* image 11 — left 900 top 613 w 375 h 190 */
@@ -507,6 +508,8 @@ html.is-native-scroll [data-scroll-item] {
   width: 26.042%;
   height: 19%;
   filter: drop-shadow(10px 1px 12px rgba(0, 0, 0, 0.2));
+  transform-origin: center center;
+  animation: way-car-drift-alt 6.5s ease-in-out infinite;
 }
 
 /* Mobile-only route connectors (drawn path + cars between stops) */
@@ -636,6 +639,70 @@ html.is-native-scroll [data-scroll-item] {
   padding-left: 6px;
 }
 
+/* Desktop: widen cards + keep titles/locations on one line */
+@media (min-width: 861px) {
+  .way__card-copy {
+    overflow-wrap: normal;
+    word-wrap: normal;
+  }
+
+  .way__card-copy h2,
+  .way__card-copy p {
+    max-width: none;
+    white-space: nowrap;
+  }
+
+  .way__card-copy .blur-text,
+  .way__card-copy .blur-text.blur-text--wrap {
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    max-width: none;
+    width: max-content;
+  }
+
+  .way__card--villa {
+    width: 30.5%;
+  }
+
+  .way__card--villa .way__card-art {
+    width: 73.55%; /* keep art ~323px on 1440 stage */
+    height: 0;
+    padding-bottom: 74.45%; /* 327/323 * 73.55% of card */
+  }
+
+  .way__card--villa .way__card-copy {
+    width: max-content;
+    min-width: 100%;
+  }
+
+  .way__card--church {
+    width: 34%;
+  }
+
+  .way__card--church .way__card-art {
+    width: 83.3%; /* ~408/490 */
+  }
+
+  .way__card--church .way__card-copy {
+    width: max-content;
+    min-width: 100%;
+    padding-left: 12px;
+  }
+
+  .way__card--restaurant {
+    width: 46%;
+  }
+
+  .way__card--restaurant .way__card-art {
+    width: 84.8%; /* ~559/660 */
+  }
+
+  .way__card--restaurant .way__card-copy {
+    width: max-content;
+    min-width: 100%;
+  }
+}
+
 @media (max-width: 860px) {
   .way {
     padding: clamp(32px, 6vh, 64px) clamp(16px, 4vw, 24px) clamp(48px, 8vh, 80px);
@@ -739,7 +806,7 @@ html.is-native-scroll [data-scroll-item] {
     left: 18%;
     top: 28%;
     width: clamp(72px, 22vw, 96px);
-    transform: rotate(-28deg);
+    transform: rotate(-27.27deg);
   }
 
   /* Convoy: Church → Restaurant — nudged left + up onto the line */
@@ -751,31 +818,40 @@ html.is-native-scroll [data-scroll-item] {
   }
 
   .way__mobile-leg--church .way__mobile-car--solo {
-    animation: way-mobile-drift 5.5s ease-in-out infinite;
+    animation: way-car-drift 5.5s ease-in-out infinite;
   }
 
   .way__mobile-leg--restaurant .way__mobile-car--convoy {
-    animation: way-mobile-drift-alt 6.5s ease-in-out infinite;
+    animation: way-car-drift-alt 6.5s ease-in-out infinite;
   }
 }
 
-@keyframes way-mobile-drift {
+@keyframes way-car-drift {
   0%,
   100% {
-    transform: rotate(-28deg) translate3d(0, 0, 0);
+    transform: rotate(-27.27deg) translate3d(0, 0, 0);
   }
   50% {
-    transform: rotate(-24deg) translate3d(6px, -4px, 0);
+    transform: rotate(-23deg) translate3d(6px, -4px, 0);
   }
 }
 
-@keyframes way-mobile-drift-alt {
+@keyframes way-car-drift-alt {
   0%,
   100% {
     transform: rotate(6deg) translate3d(0, 0, 0);
   }
   50% {
     transform: rotate(10deg) translate3d(-5px, -3px, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .way__car--solo img,
+  .way__car--convoy,
+  .way__mobile-leg--church .way__mobile-car--solo,
+  .way__mobile-leg--restaurant .way__mobile-car--convoy {
+    animation: none;
   }
 }
 
