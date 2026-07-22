@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#fdf7ee" />
+    <meta name="color-scheme" content="light" />
+    <title>Davit & Monica — Getting Married</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Birthstone+Bounce:wght@400;500&family=Jomolhari&family=Ponomar&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="scroll-root" aria-hidden="true"></div>
+
+    <div class="page" data-scroll-container>
+      <div class="page__content" data-scroll-content>
+        <div class="page__bg" aria-hidden="true">
+          <div class="page__bg-color"></div>
+          <div class="page__bg-pattern"></div>
+        </div>
+
+        <section class="hero" aria-label="Wedding announcement">
+          <div class="hero__inner">
+            <h1 class="hero__headline" data-scroll-item data-speed="1.35">
+              <span class="hero__eyebrow" data-blur>These kids Are</span>
+              <span class="hero__script" data-blur>getting married!</span>
+            </h1>
+
+            <figure class="hero__photo" data-scroll-item data-speed="1.1">
+              <div class="hero__photo-tilt">
+                <div class="polaroid">
+                  <img
+                    class="polaroid__frame"
+                    src="assets/polaroid-back.png"
+                    alt=""
+                    aria-hidden="true"
+                  />
+                  <img
+                    class="polaroid__image"
+                    src="assets/polaroid-photo.png"
+                    alt="Davit and Monica as children"
+                  />
+                </div>
+              </div>
+            </figure>
+
+            <p class="hero__names" data-scroll-item data-speed="1.3" data-blur>
+              Davit &amp; Monica
+            </p>
+          </div>
+        </section>
+
+        <section class="invite" aria-label="Save the date">
+          <div class="invite__date-block" data-scroll-item data-speed="1.04">
+            <div class="invite__date-group">
+              <p class="invite__label" data-blur>Save the Date</p>
+              <div class="invite__date" aria-label="16 August 2026">
+                <span>16</span>
+                <i class="invite__rule" aria-hidden="true"></i>
+                <span>08</span>
+                <i class="invite__rule" aria-hidden="true"></i>
+                <span>2026</span>
+              </div>
+            </div>
+            <p class="invite__names" data-blur>Davit &amp; Monica</p>
+          </div>
+
+          <figure class="invite__art" data-scroll-item data-speed="0.98">
+            <img
+              src="assets/wedding-party.png"
+              alt="Illustrated wedding party celebrating"
+              loading="lazy"
+              decoding="async"
+            />
+          </figure>
+
+          <p
+            class="invite__message"
+            data-scroll-item
+            data-speed="1.02"
+            data-blur
+            data-blur-wrap
+          >
+            Invite you to the celebration of their marriage
+          </p>
+        </section>
+
+        <section class="way" aria-label="Wedding day itinerary">
+          <div class="way__stage">
+            <!-- Decorative route: path + cars share one layer (Figma 1440×1000) -->
+            <div class="way__decor" data-scroll-item data-speed="1" aria-hidden="true">
+              <div class="way__path">
+                <img src="assets/way-path.svg" alt="" decoding="async" />
+              </div>
+
+              <div class="way__car way__car--solo">
+                <img src="assets/way-car.png" alt="" loading="lazy" decoding="async" />
+              </div>
+
+              <div class="way__car way__car--convoy">
+                <img src="assets/way-convoy.png" alt="" loading="lazy" decoding="async" />
+              </div>
+            </div>
+
+            <article class="way__card way__card--villa" data-scroll-item data-speed="1.03">
+              <div class="way__card-art">
+                <img
+                  src="assets/way-villa.png"
+                  alt="Villa Ayghedzor illustration"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+              <div class="way__card-copy">
+                <h2 data-blur data-blur-wrap>Villa Ayghedzor | 11:00</h2>
+                <p data-blur data-blur-wrap>
+                  <span>Location: </span>
+                  <a
+                    href="https://yandex.com/maps/-/CTbruH28"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >Aygedzor Street, 23, Yerevan</a
+                  >
+                </p>
+              </div>
+            </article>
+
+            <!-- Mobile route: Villa → Church -->
+            <div class="way__mobile-leg way__mobile-leg--church" aria-hidden="true">
+              <svg
+                class="way__mobile-line"
+                viewBox="0 0 320 140"
+                xmlns="http://www.w3.org/2000/svg"
+                preserveAspectRatio="none"
+              >
+                <defs>
+                  <filter
+                    id="way-new-wave-a"
+                    x="-12%"
+                    y="-20%"
+                    width="124%"
+                    height="140%"
+                    color-interpolation-filters="sRGB"
+                  >
+                    <feTurbulence
+                      type="fractalNoise"
+                      baseFrequency="0.045 0.12"
+                      numOctaves="2"
+                      seed="7"
+                      result="noise"
+                    />
+                    <feDisplacementMap
+                      in="SourceGraphic"
+                      in2="noise"
+                      scale="3.2"
+                      xChannelSelector="R"
+                      yChannelSelector="G"
+                    />
+                  </filter>
+                </defs>
+                <!-- New Wave brush ribbon -->
+                <path
+                  class="way__mobile-brush"
+                  fill="#DDD1B5"
+                  filter="url(#way-new-wave-a)"
+                  d="M154 2
+                     C 130 14, 102 28, 88 44
+                     C 72 64, 86 80, 112 92
+                     C 142 106, 182 108, 218 116
+                     C 246 122, 272 128, 278 136
+                     L 264 140
+                     C 250 132, 228 126, 200 118
+                     C 164 108, 128 106, 104 94
+                     C 84 84, 74 68, 88 50
+                     C 98 36, 124 24, 148 12
+                     C 156 8, 160 4, 154 2 Z"
+                />
+              </svg>
+              <div class="way__mobile-car way__mobile-car--solo">
+                <img src="assets/way-car.png" alt="" loading="lazy" decoding="async" />
+              </div>
+            </div>
+
+            <article class="way__card way__card--church" data-scroll-item data-speed="1.02">
+              <div class="way__card-art">
+                <img
+                  src="assets/way-church.png"
+                  alt="Saint Anna Church illustration"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+              <div class="way__card-copy">
+                <h2 data-blur data-blur-wrap>Saint Anna Church | 15:00</h2>
+                <p data-blur data-blur-wrap>
+                  <span>Location: </span>
+                  <a
+                    href="https://yandex.com/maps/-/CTbryH1a"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >Abovyan Street, 15, Yerevan</a
+                  >
+                </p>
+              </div>
+            </article>
+
+            <!-- Mobile route: Church → Restaurant -->
+            <div class="way__mobile-leg way__mobile-leg--restaurant" aria-hidden="true">
+              <svg
+                class="way__mobile-line"
+                viewBox="0 0 320 150"
+                xmlns="http://www.w3.org/2000/svg"
+                preserveAspectRatio="none"
+              >
+                <defs>
+                  <filter
+                    id="way-new-wave-b"
+                    x="-12%"
+                    y="-20%"
+                    width="124%"
+                    height="140%"
+                    color-interpolation-filters="sRGB"
+                  >
+                    <feTurbulence
+                      type="fractalNoise"
+                      baseFrequency="0.04 0.11"
+                      numOctaves="2"
+                      seed="13"
+                      result="noise"
+                    />
+                    <feDisplacementMap
+                      in="SourceGraphic"
+                      in2="noise"
+                      scale="3.6"
+                      xChannelSelector="R"
+                      yChannelSelector="G"
+                    />
+                  </filter>
+                </defs>
+                <path
+                  class="way__mobile-brush"
+                  fill="#DDD1B5"
+                  filter="url(#way-new-wave-b)"
+                  d="M200 4
+                     C 232 16, 268 34, 274 54
+                     C 282 78, 248 92, 210 104
+                     C 168 116, 124 118, 100 130
+                     C 82 138, 74 144, 84 148
+                     L 98 150
+                     C 90 142, 108 134, 130 124
+                     C 160 112, 196 110, 228 98
+                     C 256 88, 270 74, 262 56
+                     C 252 38, 224 22, 198 12
+                     C 190 8, 192 6, 200 4 Z"
+                />
+              </svg>
+              <div class="way__mobile-car way__mobile-car--convoy">
+                <img src="assets/way-convoy.png" alt="" loading="lazy" decoding="async" />
+              </div>
+            </div>
+
+            <article class="way__card way__card--restaurant" data-scroll-item data-speed="1">
+              <div class="way__card-art">
+                <img
+                  src="assets/way-restaurant.png"
+                  alt="Hrashq Aygi Restaurant illustration"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+              <div class="way__card-copy">
+                <h2 data-blur data-blur-wrap>Hrashq Aygi Restaurant | 18:00</h2>
+                <p data-blur data-blur-wrap>
+                  <span>Location: </span>
+                  <a
+                    href="https://yandex.com/maps/-/CTbrBIpm"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >Ditak village, Gevorgyan Street, 1</a
+                  >
+                </p>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="styling" aria-label="Restaurant styling">
+          <div class="styling__inner">
+            <div class="styling__carousel">
+              <div class="styling__reveal">
+                <div class="styling__track">
+                  <button type="button" class="styling__shot" data-lightbox-src="assets/style-1.jpg" aria-label="Open restaurant photo 1">
+                    <img src="assets/style-1.jpg" alt="Hrashq Aygi restaurant interior with woven pendant lights" loading="lazy" decoding="async" />
+                  </button>
+                  <button type="button" class="styling__shot" data-lightbox-src="assets/style-2.jpg" aria-label="Open restaurant photo 2">
+                    <img src="assets/style-2.jpg" alt="Dining tables and white chairs at Hrashq Aygi" loading="lazy" decoding="async" />
+                  </button>
+                  <button type="button" class="styling__shot" data-lightbox-src="assets/style-3.jpg" aria-label="Open restaurant photo 3">
+                    <img src="assets/style-3.jpg" alt="Palm trees and soft lighting in the restaurant" loading="lazy" decoding="async" />
+                  </button>
+                  <button type="button" class="styling__shot" data-lightbox-src="assets/style-4.jpg" aria-label="Open restaurant photo 4">
+                    <img src="assets/style-4.jpg" alt="Long dining hall with textured walls" loading="lazy" decoding="async" />
+                  </button>
+                  <!-- Duplicate set for seamless loop -->
+                  <button type="button" class="styling__shot" data-lightbox-src="assets/style-1.jpg" tabindex="-1" aria-hidden="true">
+                    <img src="assets/style-1.jpg" alt="" loading="lazy" decoding="async" />
+                  </button>
+                  <button type="button" class="styling__shot" data-lightbox-src="assets/style-2.jpg" tabindex="-1" aria-hidden="true">
+                    <img src="assets/style-2.jpg" alt="" loading="lazy" decoding="async" />
+                  </button>
+                  <button type="button" class="styling__shot" data-lightbox-src="assets/style-3.jpg" tabindex="-1" aria-hidden="true">
+                    <img src="assets/style-3.jpg" alt="" loading="lazy" decoding="async" />
+                  </button>
+                  <button type="button" class="styling__shot" data-lightbox-src="assets/style-4.jpg" tabindex="-1" aria-hidden="true">
+                    <img src="assets/style-4.jpg" alt="" loading="lazy" decoding="async" />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="styling__copy">
+              <h2 data-blur data-blur-wrap>Hrashq Aygi Restaurant Styling</h2>
+              <p data-blur data-blur-wrap>
+                If you don't know what to wear to our event, you can choose your
+                clothes based on the style of the establishment.
+              </p>
+            </div>
+
+            <div class="styling__palette" aria-label="Suggested color palette">
+              <span class="styling__swatch" style="--swatch: #9b8874"></span>
+              <span class="styling__swatch" style="--swatch: #382f1f"></span>
+              <span class="styling__swatch" style="--swatch: #e2dbd3"></span>
+              <span class="styling__swatch" style="--swatch: #d9ccb9"></span>
+              <span class="styling__swatch" style="--swatch: #4e3a2a"></span>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <div class="lightbox" id="lightbox" hidden>
+      <button type="button" class="lightbox__backdrop" aria-label="Close photo"></button>
+      <figure class="lightbox__figure">
+        <img class="lightbox__image" src="" alt="" />
+        <button type="button" class="lightbox__close" aria-label="Close photo">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </figure>
+    </div>
+
+    <script src="scroll.js"></script>
+    <script src="blur-text.js"></script>
+    <script src="styling.js"></script>
+  </body>
+</html>
