@@ -16,10 +16,10 @@
     window.matchMedia("(hover: none), (pointer: coarse)").matches ||
     window.matchMedia("(max-width: 900px)").matches;
 
-  // Blur filters are expensive on phones — keep a light fade/slide only.
+  // Soft blur still runs on phones (lighter than desktop).
   if (isCoarse) {
-    defaults.delay = 55;
-    defaults.stepDuration = 0.16;
+    defaults.delay = 70;
+    defaults.stepDuration = 0.18;
   }
 
   let initialized = false;
@@ -93,10 +93,17 @@
     if (isCoarse) {
       return [
         {
+          filter: "blur(6px)",
           opacity: 0,
-          transform: `translate3d(0, ${direction === "top" ? -18 : 18}px, 0)`,
+          transform: `translate3d(0, ${direction === "top" ? -16 : 16}px, 0)`,
         },
         {
+          filter: "blur(2px)",
+          opacity: 0.65,
+          transform: `translate3d(0, ${direction === "top" ? 3 : -3}px, 0)`,
+        },
+        {
+          filter: "blur(0px)",
           opacity: 1,
           transform: "translate3d(0, 0, 0)",
         },
