@@ -2,9 +2,21 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="rgba(253, 247, 238, 0.72)" />
-    <meta name="theme-color" media="(prefers-color-scheme: light)" content="rgba(253, 247, 238, 0.72)" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <!-- Chrome / older Safari. Safari 26+ ignores theme-color and uses Liquid Glass sampling. -->
+    <meta
+      name="theme-color"
+      content="#fdf7ee"
+      media="(prefers-color-scheme: light)"
+    />
+    <meta
+      name="theme-color"
+      content="#211e1c"
+      media="(prefers-color-scheme: dark)"
+    />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="color-scheme" content="light" />
@@ -15,7 +27,7 @@
       href="https://fonts.googleapis.com/css2?family=Birthstone+Bounce:wght@400;500&family=Jomolhari&family=Ponomar&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css?v=20260728b" />
+    <link rel="stylesheet" href="styles.css?v=20260728e" />
   </head>
   <body>
     <div class="scroll-root" aria-hidden="true"></div>
@@ -401,7 +413,7 @@
       playsinline
       webkit-playsinline
     >
-      <source src="assets/wedding-music.mp3" type="audio/mpeg" />
+      <source src="assets/wedding-music.mp3?v=20260728e" type="audio/mpeg" />
     </audio>
     <button
       type="button"
@@ -438,11 +450,11 @@
       </span>
     </button>
 
-    <script src="scroll.js?v=20260728b"></script>
-    <script src="blur-text.js?v=20260728b"></script>
-    <script src="styling.js?v=20260728b"></script>
-    <script src="countdown.js?v=20260728b"></script>
-    <script src="way-mobile.js?v=20260728b"></script>
-    <script src="music.js?v=20260728b"></script>
+    <script src="scroll.js?v=20260728e"></script>
+    <script src="blur-text.js?v=20260728e"></script>
+    <script src="styling.js?v=20260728e"></script>
+    <script src="countdown.js?v=20260728e"></script>
+    <script src="way-mobile.js?v=20260728e"></script>
+    <script src="music.js?v=20260728e"></script>
   </body>
 </html>

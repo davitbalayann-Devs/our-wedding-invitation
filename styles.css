@@ -1420,9 +1420,11 @@ body.lightbox-open {
   position: fixed;
   inset: 0;
   z-index: 1000;
-  display: grid;
+  display: none;
   place-items: center;
   padding: 24px;
+  /* Keep the fixed overlay itself transparent so Safari 26 does not solid-tint chrome */
+  background: transparent;
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
@@ -1432,6 +1434,7 @@ body.lightbox-open {
 }
 
 .lightbox.is-open {
+  display: grid;
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
@@ -1852,9 +1855,8 @@ body.is-gated {
   place-items: center;
   padding: max(24px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right))
     max(24px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left));
-  background:
-    radial-gradient(ellipse 80% 60% at 50% 40%, rgba(253, 247, 238, 0.2), transparent 70%),
-    var(--color-bg);
+  /* Solid fill lives on a child — keeps Safari chrome from locking to a flat tint */
+  background: transparent;
   transform: scale(1);
   filter: blur(0);
   opacity: 1;
@@ -1864,6 +1866,17 @@ body.is-gated {
     opacity 0.65s ease,
     visibility 0.75s ease;
   will-change: transform, filter, opacity;
+}
+
+.invite-gate::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 40%, rgba(253, 247, 238, 0.2), transparent 70%),
+    var(--color-bg);
+  pointer-events: none;
 }
 
 .invite-gate[hidden] {
@@ -1891,9 +1904,13 @@ body.is-gated {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 10px;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   padding: 28px 12px;
-  max-width: min(100%, 36rem);
   text-align: center;
   font: inherit;
   animation: invite-gate-breathe 2.8s ease-in-out infinite;
@@ -1950,36 +1967,43 @@ body.is-gated {
   }
 }
 
-/* Floating music control */
+/* Floating music control
+   Safari 26 Liquid Glass samples background/backdrop on the FIXED node itself.
+   Keep those on an absolute child so the browser chrome stays translucent + blur. */
 .music-toggle {
   position: fixed;
   z-index: 40;
   right: max(16px, env(safe-area-inset-right));
-  bottom: max(16px, env(safe-area-inset-bottom));
+  bottom: max(18px, calc(env(safe-area-inset-bottom) + 12px));
   width: 48px;
   height: 48px;
   display: grid;
   place-items: center;
-  border: 1px solid rgba(33, 30, 28, 0.1);
+  border: 0;
   border-radius: 50%;
-  background: rgba(253, 247, 238, 0.38);
+  background: transparent;
   color: var(--color-ink);
   cursor: pointer;
-  box-shadow: 0 8px 20px rgba(33, 30, 28, 0.08);
-  -webkit-backdrop-filter: saturate(1.2) blur(16px);
-  backdrop-filter: saturate(1.2) blur(16px);
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
-  transition: transform 0.25s ease, background 0.25s ease, color 0.25s ease;
+  transition: transform 0.25s ease, color 0.25s ease;
 }
 
-@supports (-webkit-touch-callout: none) {
-  /* Safari: keep fill glassy so backdrop blur actually shows */
-  .music-toggle {
-    background: rgba(253, 247, 238, 0.28);
-    -webkit-backdrop-filter: saturate(1.35) blur(20px);
-    backdrop-filter: saturate(1.35) blur(20px);
-  }
+.music-toggle::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  border: 1px solid rgba(33, 30, 28, 0.12);
+  background: rgba(253, 247, 238, 0.55);
+  box-shadow: 0 8px 20px rgba(33, 30, 28, 0.1);
+  -webkit-backdrop-filter: saturate(1.35) blur(20px);
+  backdrop-filter: saturate(1.35) blur(20px);
+  pointer-events: none;
 }
 
 .music-toggle:hover {
@@ -1991,13 +2015,15 @@ body.is-gated {
 }
 
 .music-toggle__icon {
+  position: relative;
+  z-index: 1;
   display: none;
   line-height: 0;
+  color: var(--color-ink);
 }
 
 .music-toggle.is-playing .music-toggle__icon--on,
-.music-toggle.is-muted .music-toggle__icon--off,
-.music-toggle:not(.is-playing):not(.is-muted) .music-toggle__icon--off {
+.music-toggle.is-muted .music-toggle__icon--off {
   display: block;
 }
 

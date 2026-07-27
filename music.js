@@ -10,18 +10,11 @@
   let wantPlay = localStorage.getItem(storageKey) !== "1";
   let gateClosed = false;
 
-  // Prime the element early — Safari is pickier about first play().
-  try {
-    audio.load();
-  } catch {
-    /* ignore */
-  }
-
   function syncUi(playing) {
-    toggle.setAttribute("aria-pressed", playing ? "true" : "false");
-    toggle.setAttribute("aria-label", playing ? "Mute music" : "Play music");
     toggle.classList.toggle("is-playing", playing);
     toggle.classList.toggle("is-muted", !playing);
+    toggle.setAttribute("aria-pressed", playing ? "true" : "false");
+    toggle.setAttribute("aria-label", playing ? "Mute music" : "Play music");
   }
 
   function markPlaying() {
@@ -39,30 +32,26 @@
   }
 
   /**
-   * Safari only unlocks audio when play() runs in the same turn as the user gesture.
-   * Do not await anything before calling audio.play().
+   * Must run in the same turn as a real click/tap.
+   * Do not call preventDefault() before this on Safari — it kills the gesture.
    */
   function playFromGesture() {
     audio.muted = false;
     try {
-      // iOS ignores volume; desktop Safari accepts it.
       audio.volume = 0.45;
     } catch {
-      /* ignore */
+      /* iOS may ignore volume */
     }
 
     const attempt = audio.play();
     if (attempt && typeof attempt.then === "function") {
-      attempt.then(markPlaying).catch(() => {
-        // One immediate retry still inside the gesture chain on some WebKit builds.
-        audio
-          .play()
-          .then(markPlaying)
-          .catch(() => syncUi(false));
+      attempt.then(markPlaying).catch((err) => {
+        console.warn("Music play failed:", err);
+        syncUi(false);
       });
-    } else {
-      markPlaying();
+      return;
     }
+    markPlaying();
   }
 
   function closeGate() {
@@ -76,20 +65,15 @@
     }, 780);
   }
 
-  function openInvite(event) {
-    event.preventDefault();
-    event.stopPropagation();
+  function openInvite() {
     if (gateClosed) return;
 
-    // play() FIRST — before any animation / timeout (Safari requirement).
-    if (wantPlay) playFromGesture();
-    else syncUi(false);
-
+    // Always try to start music on the opening tap (Safari-friendly).
+    playFromGesture();
     closeGate();
   }
 
   function toggleMusic(event) {
-    event.preventDefault();
     event.stopPropagation();
     if (!audio.paused) {
       pause();
@@ -98,30 +82,18 @@
     playFromGesture();
   }
 
+  syncUi(false);
+
   if (gate && gateOpen) {
     document.body.classList.add("is-gated");
-    syncUi(false);
-
-    // pointerdown is the most reliable unlock gesture on iOS Safari.
-    gate.addEventListener("pointerdown", openInvite, { passive: false });
+    // click only — pointerdown + preventDefault breaks Safari audio unlock
     gateOpen.addEventListener("click", openInvite);
     gate.addEventListener("keydown", (event) => {
-      if (event.key === "Enter" || event.key === " ") openInvite(event);
-    });
-  } else if (wantPlay) {
-    const unlockFromGesture = (event) => {
-      if (unlocked || !wantPlay) return;
-      playFromGesture();
-      if (unlocked || !audio.paused) {
-        window.removeEventListener("pointerdown", unlockFromGesture);
-        window.removeEventListener("keydown", unlockFromGesture);
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        openInvite();
       }
-      event?.preventDefault?.();
-    };
-    window.addEventListener("pointerdown", unlockFromGesture, { passive: false });
-    window.addEventListener("keydown", unlockFromGesture);
-  } else {
-    syncUi(false);
+    });
   }
 
   toggle.addEventListener("click", toggleMusic);
@@ -131,7 +103,6 @@
       if (!audio.paused) audio.pause();
       return;
     }
-    // Resume only after a real unlock — never call play() without a gesture on Safari.
     if (wantPlay && unlocked) {
       audio.play().then(markPlaying).catch(() => syncUi(false));
     }
