@@ -4,23 +4,17 @@
   ).matches;
 
   const defaults = {
-    delay: 100,
-    animateBy: "sentences",
+    delay: 140,
+    animateBy: "words",
     direction: "top",
-    threshold: 0.1,
-    rootMargin: "0px",
-    stepDuration: 0.20,
+    threshold: 0.28,
+    rootMargin: "0px 0px -8% 0px",
+    stepDuration: 0.48,
+    staggerMs: 420,
   };
 
-  const isCoarse =
-    window.matchMedia("(hover: none), (pointer: coarse)").matches ||
-    window.matchMedia("(max-width: 900px)").matches;
-
-  // Soft blur still runs on phones (lighter than desktop).
-  if (isCoarse) {
-    defaults.delay = 70;
-    defaults.stepDuration = 0.18;
-  }
+  const unitSelector =
+    ".hero, .invite, .styling, .countdown, .way__title, .way__card";
 
   let initialized = false;
 
@@ -54,7 +48,6 @@
     );
   }
 
-  /** Build animated segments while preserving nested links. */
   function buildSegments(el, animateBy) {
     const segments = [];
     const childNodes = Array.from(el.childNodes);
@@ -87,38 +80,18 @@
   }
 
   function keyframesFor(direction) {
-    const fromY = direction === "top" ? -50 : 50;
-    const midY = direction === "top" ? 5 : -5;
-
-    if (isCoarse) {
-      return [
-        {
-          filter: "blur(6px)",
-          opacity: 0,
-          transform: `translate3d(0, ${direction === "top" ? -16 : 16}px, 0)`,
-        },
-        {
-          filter: "blur(2px)",
-          opacity: 0.65,
-          transform: `translate3d(0, ${direction === "top" ? 3 : -3}px, 0)`,
-        },
-        {
-          filter: "blur(0px)",
-          opacity: 1,
-          transform: "translate3d(0, 0, 0)",
-        },
-      ];
-    }
+    const fromY = direction === "top" ? -28 : 28;
+    const midY = direction === "top" ? 4 : -4;
 
     return [
       {
-        filter: "blur(10px)",
+        filter: "blur(12px)",
         opacity: 0,
         transform: `translateY(${fromY}px)`,
       },
       {
         filter: "blur(5px)",
-        opacity: 0.5,
+        opacity: 0.45,
         transform: `translateY(${midY}px)`,
       },
       {
@@ -148,8 +121,7 @@
     const from = frames[0];
 
     segments.forEach((segment) => {
-      if (from.filter) segment.style.filter = from.filter;
-      else segment.style.filter = "none";
+      segment.style.filter = from.filter || "none";
       segment.style.opacity = String(from.opacity);
       segment.style.transform = from.transform;
     });
@@ -159,7 +131,7 @@
     el._blurPrepared = true;
   }
 
-  function play(el) {
+  function playBlur(el) {
     if (el._blurDone || el._blurPlaying) return;
 
     prepare(el);
@@ -187,8 +159,8 @@
     segments.forEach((segment, index) => {
       const animation = segment.animate(frames, {
         duration,
-        delay: (index * delay),
-        easing: "linear",
+        delay: index * delay,
+        easing: "cubic-bezier(0.22, 1, 0.36, 1)",
         fill: "forwards",
       });
 
@@ -200,17 +172,66 @@
     });
   }
 
+  function playReveal(el) {
+    if (el.classList.contains("is-revealed")) return;
+    if (reducedMotion) {
+      el.classList.add("is-revealed");
+      return;
+    }
+    // Force reflow so the transition always runs.
+    void el.offsetWidth;
+    el.classList.add("is-revealed");
+  }
+
+  function piecesForUnit(unit) {
+    const pieces = Array.from(
+      unit.querySelectorAll("[data-blur], [data-reveal]")
+    ).filter((el) => el.closest(unitSelector) === unit);
+
+    // Units like .way__title carry data-blur on themselves, not on children.
+    if (
+      unit.matches?.("[data-blur], [data-reveal]") &&
+      !pieces.includes(unit)
+    ) {
+      pieces.unshift(unit);
+    }
+
+    return pieces;
+  }
+
+  function playUnit(unit) {
+    if (!unit || unit._revealPlayed) return;
+    unit._revealPlayed = true;
+
+    const pieces = piecesForUnit(unit);
+    if (!pieces.length) return;
+
+    pieces.forEach((el, index) => {
+      const wait = reducedMotion ? 0 : index * defaults.staggerMs;
+      window.setTimeout(() => {
+        if (el.hasAttribute("data-blur")) playBlur(el);
+        if (el.hasAttribute("data-reveal")) playReveal(el);
+      }, wait);
+    });
+  }
+
+  function findUnit(node) {
+    if (!node || !node.closest) return null;
+    return node.closest(unitSelector);
+  }
+
   function init() {
     if (initialized) return;
     initialized = true;
 
-    const elements = Array.from(document.querySelectorAll("[data-blur]"));
-    if (!elements.length) return;
+    const blurEls = Array.from(document.querySelectorAll("[data-blur]"));
+    blurEls.forEach(prepare);
 
-    elements.forEach(prepare);
+    const units = Array.from(document.querySelectorAll(unitSelector));
+    if (!units.length) return;
 
     if (reducedMotion) {
-      elements.forEach(play);
+      units.forEach(playUnit);
       return;
     }
 
@@ -218,20 +239,26 @@
       (entries) => {
         for (const entry of entries) {
           if (!entry.isIntersecting) continue;
-          play(entry.target);
+          playUnit(entry.target);
           observer.unobserve(entry.target);
         }
       },
       {
-        threshold: Number(
-          elements[0]?.dataset.blurThreshold ?? defaults.threshold
-        ),
-        rootMargin:
-          elements[0]?.dataset.blurMargin || defaults.rootMargin,
+        threshold: defaults.threshold,
+        rootMargin: defaults.rootMargin,
       }
     );
 
-    elements.forEach((el) => observer.observe(el));
+    units.forEach((unit) => observer.observe(unit));
+
+    // After a smooth snap lands, play that section in sequence.
+    document.addEventListener("section:arrive", (event) => {
+      const section = event.detail?.section;
+      const unit = findUnit(section) || section;
+      if (!unit) return;
+      // Allow replay only if not yet played; playUnit guards with flag.
+      playUnit(unit);
+    });
   }
 
   function whenReady(callback) {

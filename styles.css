@@ -70,11 +70,6 @@ html.is-native-scroll .page__bg {
   position: fixed;
 }
 
-html.is-native-scroll [data-scroll-item] {
-  transform: none !important;
-  will-change: auto;
-}
-
 /* Apply before JS runs so phones never start in fixed-scroll mode. */
 @media (max-width: 900px), (hover: none) and (pointer: coarse) {
   html,
@@ -111,11 +106,6 @@ html.is-native-scroll [data-scroll-item] {
 
   .page__bg {
     position: fixed;
-  }
-
-  [data-scroll-item] {
-    transform: none !important;
-    will-change: auto;
   }
 }
 
@@ -171,7 +161,8 @@ html.is-native-scroll [data-scroll-item] {
 .page__content > .hero,
 .page__content > .invite,
 .page__content > .way,
-.page__content > .styling {
+.page__content > .styling,
+.page__content > .countdown {
   position: relative;
   z-index: 1;
   background: transparent;
@@ -182,6 +173,44 @@ html.is-native-scroll [data-scroll-item] {
   --parallax-y: 0px;
   transform: translate3d(0, var(--parallax-y), 0);
   will-change: transform;
+}
+
+/* Prevent parent parallax var from shifting nested reveals/layout */
+[data-scroll-item] * {
+  --parallax-y: 0px;
+}
+
+/* Sequential reveal — local offset only (no inherited parallax) */
+[data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 24px, 0);
+  transition:
+    opacity 1.1s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 1.1s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+
+[data-reveal].is-revealed {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+/* Same element also parallax-scrolls */
+[data-scroll-item][data-reveal] {
+  transform: translate3d(0, calc(var(--parallax-y, 0px) + 24px), 0);
+}
+
+[data-scroll-item][data-reveal].is-revealed {
+  transform: translate3d(0, var(--parallax-y, 0px), 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal],
+  [data-scroll-item][data-reveal] {
+    opacity: 1;
+    transform: translate3d(0, var(--parallax-y, 0px), 0);
+    transition: none;
+  }
 }
 
 /* —— Hero —— */
@@ -327,22 +356,26 @@ html.is-native-scroll [data-scroll-item] {
   color: var(--color-ink);
 }
 
-/* —— Invite (Figma 27:262 — 1440×890, gap 25px) —— */
+/* —— Invite (full viewport like Hero; art scales to fit) —— */
 .invite {
   position: relative;
   z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 25px;
+  justify-content: center;
+  gap: clamp(16px, 4.5vh, 52px);
   width: 100%;
   max-width: var(--page-max);
+  height: 100dvh;
+  min-height: 100dvh;
   margin: 0 auto;
-  padding: 0 clamp(20px, 4vw, 120px) 0;
+  padding: clamp(24px, 5vh, 64px) clamp(20px, 4vw, 120px);
   overflow: visible;
 }
 
 .invite__date-block {
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -353,21 +386,26 @@ html.is-native-scroll [data-scroll-item] {
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 4px;
   width: min(100%, 328px);
 }
 
 .invite__label {
+  position: relative;
+  z-index: 2;
   width: 100%;
   font-family: var(--font-display);
   font-size: clamp(20px, 2.4vw, 28px);
   font-weight: 400;
-  line-height: normal;
+  line-height: 1.2;
   text-align: center;
   text-transform: uppercase;
   color: var(--color-ink);
 }
 
 .invite__date {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -376,7 +414,7 @@ html.is-native-scroll [data-scroll-item] {
   font-family: var(--font-display);
   font-size: clamp(36px, 5vw, 58px);
   font-weight: 400;
-  line-height: normal;
+  line-height: 1.15;
   text-align: center;
   text-transform: uppercase;
   color: var(--color-ink);
@@ -406,31 +444,54 @@ html.is-native-scroll [data-scroll-item] {
 }
 
 .invite__art {
+  position: relative;
+  z-index: 1;
+  flex: 0 1 auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: min(100%, 1200px);
+  width: auto;
+  max-width: min(100%, 1200px);
+  height: auto;
+  max-height: min(46dvh, 542px);
   aspect-ratio: 1200 / 542;
+  min-height: 0;
 }
 
 .invite__art img {
   display: block;
   width: 100%;
   height: 100%;
+  max-height: min(46dvh, 542px);
   object-fit: contain;
   user-select: none;
   pointer-events: none;
 }
 
 .invite__message {
-  width: min(100%, 1440px);
+  position: relative;
+  z-index: 2;
+  flex: 0 0 auto;
+  width: max-content;
+  max-width: 100%;
+  margin-top: 0;
+  padding-inline: 0.2em;
   font-family: var(--font-display);
-  font-size: clamp(22px, 2.8vw, 32px);
+  /* Scales to keep the full sentence on one line across viewports */
+  font-size: clamp(11px, 2.15vw + 0.55rem, 32px);
   font-weight: 400;
-  line-height: normal;
+  line-height: 1.2;
   text-align: center;
   text-transform: capitalize;
   color: var(--color-ink);
+  white-space: nowrap;
+  overflow: visible;
+}
+
+.invite__message.blur-text {
+  flex-wrap: nowrap;
+  white-space: nowrap;
+  max-width: 100%;
 }
 
 /* —— Way (Figma 27:264 — 1440×1000) —— */
@@ -439,6 +500,24 @@ html.is-native-scroll [data-scroll-item] {
   max-width: var(--page-max);
   margin: 0 auto;
   padding: 0 clamp(0px, 2vw, 24px) clamp(64px, 10vh, 120px);
+}
+
+/* Figma 0:52 — Wedding Timeline, 68px Jomolhari, top ~62 */
+.way__title {
+  width: 100%;
+  margin: 0;
+  padding: clamp(40px, 4.3vw, 62px) clamp(16px, 4vw, 40px) clamp(24px, 3vw, 48px);
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-size: clamp(36px, 4.7vw, 68px);
+  font-weight: 400;
+  line-height: normal;
+  text-align: center;
+  text-transform: capitalize;
+}
+
+.way__title.blur-text {
+  justify-content: center;
 }
 
 .way__stage {
@@ -462,6 +541,7 @@ html.is-native-scroll [data-scroll-item] {
   top: 20.734%;
   width: 72.672%;
   height: 60.47%;
+  z-index: 1;
 }
 
 .way__path img {
@@ -491,15 +571,16 @@ html.is-native-scroll [data-scroll-item] {
   pointer-events: none;
 }
 
-/* Object — inset 26% 49.94% 57.03% 37.08%, rotate -27.27deg */
+/* Solo car sits on the Villa → Church stroke */
 .way__car--solo {
-  left: 37.08%;
-  top: 26%;
+  left: 37%;
+  top: 25.5%;
   width: 12.98%;
   height: 16.97%;
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 2;
 }
 
 .way__car--solo img {
@@ -509,17 +590,18 @@ html.is-native-scroll [data-scroll-item] {
   /* Shadow on the PNG itself — avoids square box shadows on Safari */
   filter: drop-shadow(0 8px 10px rgba(33, 30, 28, 0.22));
   transform-origin: center center;
-  animation: way-car-drift 5.5s ease-in-out infinite;
+  animation: way-car-drift-desktop 5.5s ease-in-out infinite;
 }
 
-/* image 11 — left 900 top 613 w 375 h 190 */
+/* Convoy sits on the Church → Restaurant curve */
 .way__car--convoy {
-  left: 62.5%;
-  top: 61.3%;
+  left: 60%;
+  top: 59.2%;
   width: 26.042%;
   height: 19%;
+  z-index: 2;
   transform-origin: center center;
-  animation: way-car-drift-alt 6.5s ease-in-out infinite;
+  animation: way-car-drift-alt-desktop 6.5s ease-in-out infinite;
 }
 
 .way__car--convoy img {
@@ -723,6 +805,17 @@ html.is-native-scroll [data-scroll-item] {
     padding: clamp(32px, 6vh, 64px) clamp(16px, 4vw, 24px) clamp(48px, 8vh, 80px);
   }
 
+  .way__title {
+    padding: 8px max(16px, env(safe-area-inset-left)) 28px
+      max(16px, env(safe-area-inset-right));
+    font-size: clamp(28px, 8vw, 40px);
+  }
+
+  .way__title.blur-text {
+    flex-wrap: wrap;
+    white-space: normal;
+  }
+
   .way__stage {
     display: flex;
     flex-direction: column;
@@ -740,7 +833,8 @@ html.is-native-scroll [data-scroll-item] {
     position: relative;
     left: auto;
     top: auto;
-    z-index: 2;
+    /* Above path legs so labels cover the stroke; art PNGs stay see-through at edges */
+    z-index: 4;
     width: min(100%, 520px);
     max-width: 100%;
     margin: 0 auto;
@@ -767,9 +861,10 @@ html.is-native-scroll [data-scroll-item] {
   }
 
   .way__card-art {
+    position: relative;
+    z-index: 4;
     overflow: visible;
     background: transparent;
-    /* Room for soft shadow without a hard rectangular layer */
     margin-bottom: 4px;
   }
 
@@ -788,9 +883,12 @@ html.is-native-scroll [data-scroll-item] {
   .way__card--church .way__card-copy,
   .way__card--restaurant .way__card-copy,
   .way__card--villa .way__card-copy {
+    position: relative;
+    z-index: 5;
     width: 100%;
     max-width: 100%;
-    padding-left: 0;
+    padding: 8px 12px 14px;
+    background: transparent;
     overflow: visible;
     overflow-wrap: break-word;
     word-wrap: break-word;
@@ -819,34 +917,74 @@ html.is-native-scroll [data-scroll-item] {
     font-size: 14px;
   }
 
+  /* Keep cards from drifting over the measured path on phones */
+  .way__card[data-scroll-item] {
+    transform: none !important;
+  }
+
+  .way__stage--mobile-paths {
+    position: relative;
+  }
+
   .way__mobile-leg {
     position: relative;
     display: block;
     width: min(100%, 520px);
-    height: clamp(112px, 32vw, 148px);
-    margin: -6px auto;
+    /* Spacer + car parking between text and next stop */
+    height: clamp(120px, 34vw, 160px);
+    margin: 8px auto 14px;
     z-index: 1;
     pointer-events: none;
+    overflow: visible;
+    isolation: isolate;
+  }
+
+  /*
+   * Line wrap is pinned in JS from previous art → next art (relative to leg).
+   * Soft masks (also JS) hide the stroke through text plates.
+   */
+  .way__stage--mobile-paths .way__mobile-line-wrap {
+    right: 4%;
+    left: 4%;
+    bottom: auto;
+    z-index: -1;
+    display: block;
+    margin: 0;
+    overflow: visible;
+    pointer-events: none;
+  }
+
+  .way__mobile-line-wrap {
+    position: absolute;
+    left: 4%;
+    right: 4%;
+    top: 0;
+    bottom: 0;
+    z-index: -1;
+    width: auto;
+    height: auto;
     overflow: visible;
   }
 
   .way__mobile-line {
-    position: absolute;
-    inset: 0;
+    display: block;
     width: 100%;
     height: 100%;
     overflow: visible;
   }
 
   .way__mobile-brush {
-    fill: #ddd1b5;
+    fill: none;
+    stroke: #ddd1b5;
   }
 
   .way__mobile-car {
     position: absolute;
-    z-index: 2;
+    z-index: 10;
+    left: 50%;
+    /* top is set in JS to the path midpoint */
+    top: 42%;
     pointer-events: none;
-    /* No filter on the box — only on the image below */
     filter: none;
     background: transparent;
   }
@@ -859,23 +997,18 @@ html.is-native-scroll [data-scroll-item] {
     user-select: none;
     pointer-events: none;
     background: transparent;
-    filter: drop-shadow(0 6px 8px rgba(33, 30, 28, 0.2));
   }
 
-  /* Solo car: Villa → Church */
+  /* Solo car — only size / rotation; vertical slot comes from JS */
   .way__mobile-car--solo {
-    left: 18%;
-    top: 28%;
-    width: clamp(72px, 22vw, 96px);
-    transform: rotate(-27.27deg);
+    width: clamp(78px, 24vw, 104px);
+    transform: translate(-50%, -55%) rotate(-27.27deg);
   }
 
-  /* Convoy: Church → Restaurant — nudged left + up onto the line */
+  /* Convoy */
   .way__mobile-car--convoy {
-    left: 28%;
-    top: 20%;
-    width: clamp(140px, 46vw, 200px);
-    transform: rotate(6deg);
+    width: clamp(150px, 48vw, 210px);
+    transform: translate(-50%, -55%) rotate(6deg);
   }
 
   .way__mobile-leg--church .way__mobile-car--solo {
@@ -887,7 +1020,7 @@ html.is-native-scroll [data-scroll-item] {
   }
 }
 
-@keyframes way-car-drift {
+@keyframes way-car-drift-desktop {
   0%,
   100% {
     transform: rotate(-27.27deg) translate3d(0, 0, 0);
@@ -897,13 +1030,33 @@ html.is-native-scroll [data-scroll-item] {
   }
 }
 
+@keyframes way-car-drift-alt-desktop {
+  0%,
+  100% {
+    transform: rotate(0deg) translate3d(0, 0, 0);
+  }
+  50% {
+    transform: rotate(4deg) translate3d(-5px, -3px, 0);
+  }
+}
+
+@keyframes way-car-drift {
+  0%,
+  100% {
+    transform: translate(-50%, -55%) rotate(-27.27deg);
+  }
+  50% {
+    transform: translate(calc(-50% + 5px), calc(-55% - 4px)) rotate(-23deg);
+  }
+}
+
 @keyframes way-car-drift-alt {
   0%,
   100% {
-    transform: rotate(6deg) translate3d(0, 0, 0);
+    transform: translate(-50%, -55%) rotate(6deg);
   }
   50% {
-    transform: rotate(10deg) translate3d(-5px, -3px, 0);
+    transform: translate(calc(-50% - 5px), calc(-55% - 3px)) rotate(10deg);
   }
 }
 
@@ -982,6 +1135,10 @@ html.is-native-scroll [data-scroll-item] {
   width: 100%;
   overflow: hidden;
   contain: layout paint;
+  cursor: grab;
+  touch-action: pan-y;
+  -webkit-user-select: none;
+  user-select: none;
   -webkit-mask-image: linear-gradient(
     90deg,
     transparent 0%,
@@ -996,6 +1153,14 @@ html.is-native-scroll [data-scroll-item] {
     #000 92%,
     transparent 100%
   );
+}
+
+.styling__carousel.is-dragging {
+  cursor: grabbing;
+}
+
+.styling__carousel.is-dragging .styling__shot {
+  cursor: grabbing;
 }
 
 .styling__reveal {
@@ -1022,17 +1187,8 @@ html.is-native-scroll [data-scroll-item] {
   gap: var(--shot-gap);
   width: max-content;
   padding: 12px 0;
-  animation: styling-marquee 48s linear infinite;
-  animation-play-state: paused;
   will-change: transform;
-}
-
-.styling__carousel.is-revealed .styling__track {
-  animation-play-state: running;
-}
-
-.styling__carousel.is-revealed.is-paused:not(.is-resuming) .styling__track {
-  animation-play-state: paused;
+  transform: translate3d(0, 0, 0);
 }
 
 .styling__shot {
@@ -1099,7 +1255,6 @@ html.is-native-scroll [data-scroll-item] {
   width: 100%;
   padding: 0 60px 0 66px;
   font-family: var(--font-display);
-  text-transform: capitalize;
   overflow-wrap: anywhere;
   word-wrap: break-word;
 }
@@ -1119,6 +1274,7 @@ html.is-native-scroll [data-scroll-item] {
   font-weight: 400;
   line-height: 1.35;
   max-width: 100%;
+  text-transform: none;
 }
 
 .styling__copy .blur-text {
@@ -1141,15 +1297,6 @@ html.is-native-scroll [data-scroll-item] {
   background: var(--swatch);
 }
 
-@keyframes styling-marquee {
-  from {
-    transform: translate3d(0, 0, 0);
-  }
-  to {
-    transform: translate3d(calc(-50% - 6px), 0, 0);
-  }
-}
-
 @keyframes styling-shot-in {
   from {
     opacity: 0;
@@ -1159,6 +1306,109 @@ html.is-native-scroll [data-scroll-item] {
     opacity: 1;
     transform: translate3d(0, 0, 0);
   }
+}
+
+/* —— Countdown (full viewport like Hero) —— */
+.countdown {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: var(--page-max);
+  height: 100dvh;
+  min-height: 100dvh;
+  margin: 0 auto;
+  padding: clamp(40px, 8vh, 120px) clamp(20px, 4vw, 60px);
+  box-sizing: border-box;
+}
+
+.countdown__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+  width: 100%;
+}
+
+.countdown__headline {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  font-family: var(--font-display);
+  text-align: center;
+}
+
+.countdown__headline h2 {
+  color: var(--color-ink);
+  font-size: clamp(36px, 5.3vw, 76px);
+  font-weight: 400;
+  line-height: normal;
+  text-transform: capitalize;
+}
+
+.countdown__headline p {
+  margin-top: 0.15em;
+  color: var(--color-link);
+  font-size: clamp(20px, 2.2vw, 32px);
+  font-weight: 400;
+  line-height: normal;
+  text-align: center;
+}
+
+.countdown__headline .blur-text {
+  justify-content: center;
+}
+
+.countdown__timer {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: clamp(12px, 2vw, 28px);
+  width: 100%;
+  max-width: 920px;
+}
+
+.countdown__unit {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  gap: 6px;
+}
+
+.countdown__value {
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-size: clamp(40px, 6vw, 72px);
+  font-weight: 400;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+.countdown__label {
+  color: var(--color-link);
+  font-family: var(--font-display);
+  font-size: clamp(12px, 1.2vw, 18px);
+  font-weight: 400;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.countdown__sep {
+  display: block;
+  align-self: center;
+  width: 1px;
+  height: clamp(36px, 5vw, 56px);
+  margin-top: -0.6em;
+  background: var(--color-rule);
+  opacity: 0.55;
 }
 
 /* —— Lightbox —— */
@@ -1336,9 +1586,11 @@ body.lightbox-open {
   }
 
   .invite {
-    gap: 20px;
-    padding: 8px max(16px, env(safe-area-inset-left)) 40px
-      max(16px, env(safe-area-inset-right));
+    height: auto;
+    min-height: 100svh;
+    gap: clamp(12px, 2.8vh, 20px);
+    padding: clamp(16px, 3vh, 32px) max(16px, env(safe-area-inset-left))
+      clamp(16px, 3vh, 32px) max(16px, env(safe-area-inset-right));
     overflow: visible;
   }
 
@@ -1369,18 +1621,26 @@ body.lightbox-open {
   }
 
   .invite__message {
-    font-size: clamp(18px, 5vw, 24px);
-    padding: 0 4px;
+    font-size: clamp(11px, 3.55vw, 20px);
+    padding: 0 2px;
     max-width: 100%;
+    white-space: nowrap;
+  }
+
+  .invite__message.blur-text {
+    flex-wrap: nowrap;
+    white-space: nowrap;
   }
 
   .invite__art {
-    width: 100%;
+    width: auto;
     max-width: 100%;
+    max-height: min(38svh, 280px);
     overflow: visible;
   }
 
   .invite__art img {
+    max-height: min(38svh, 280px);
     object-fit: contain;
   }
 
@@ -1417,7 +1677,6 @@ body.lightbox-open {
     --shot-h: min(44vw, 180px);
     --shot-grow: 1;
     padding: 4px 0;
-    animation-duration: 36s;
   }
 
   .styling__reveal {
@@ -1453,6 +1712,49 @@ body.lightbox-open {
   .styling__swatch {
     height: 18px;
     border-radius: 5px;
+  }
+
+  .countdown {
+    height: auto;
+    min-height: 100svh;
+    padding: clamp(40px, 6vh, 72px) max(16px, env(safe-area-inset-left))
+      clamp(48px, 7vh, 88px) max(16px, env(safe-area-inset-right));
+  }
+
+  .countdown__inner {
+    gap: 28px;
+  }
+
+  .countdown__headline h2 {
+    font-size: clamp(28px, 8vw, 40px);
+    white-space: normal;
+    max-width: 100%;
+  }
+
+  .countdown__headline h2.blur-text {
+    flex-wrap: wrap;
+    white-space: normal;
+  }
+
+  .countdown__headline p {
+    font-size: 18px;
+  }
+
+  .countdown__timer {
+    gap: 8px;
+  }
+
+  .countdown__value {
+    font-size: clamp(28px, 9vw, 40px);
+  }
+
+  .countdown__label {
+    font-size: 11px;
+    letter-spacing: 0.06em;
+  }
+
+  .countdown__sep {
+    height: 32px;
   }
 
   .lightbox {
@@ -1536,3 +1838,155 @@ body.lightbox-open {
     transition: none;
   }
 }
+
+/* Opening gate — one real tap unlocks music (autoplay is blocked by browsers) */
+body.is-gated {
+  overflow: hidden;
+}
+
+.invite-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: max(24px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right))
+    max(24px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left));
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 40%, rgba(253, 247, 238, 0.2), transparent 70%),
+    var(--color-bg);
+  transform: scale(1);
+  filter: blur(0);
+  opacity: 1;
+  transition:
+    transform 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.65s ease,
+    visibility 0.75s ease;
+  will-change: transform, filter, opacity;
+}
+
+.invite-gate[hidden] {
+  display: none;
+}
+
+.invite-gate.is-leaving {
+  transform: scale(1.45);
+  filter: blur(18px);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.invite-gate.is-leaving .invite-gate__hit {
+  animation: none;
+}
+
+.invite-gate__hit {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--color-ink);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 28px 12px;
+  max-width: min(100%, 36rem);
+  text-align: center;
+  font: inherit;
+  animation: invite-gate-breathe 2.8s ease-in-out infinite;
+}
+
+.invite-gate__eyebrow {
+  font-family: var(--font-display);
+  font-size: clamp(14px, 3.6vw, 18px);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-link);
+}
+
+.invite-gate__title {
+  font-family: var(--font-script);
+  font-size: clamp(36px, 9vw, 64px);
+  line-height: 1;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.invite-gate__hint {
+  margin-top: 6px;
+  font-family: var(--font-display);
+  font-size: 14px;
+  color: var(--color-link);
+  letter-spacing: 0.04em;
+}
+
+@keyframes invite-gate-breathe {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-4px);
+    opacity: 0.88;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .invite-gate__hit {
+    animation: none;
+  }
+
+  .invite-gate {
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+  }
+
+  .invite-gate.is-leaving {
+    transform: none;
+    filter: none;
+  }
+}
+
+/* Floating music control */
+.music-toggle {
+  position: fixed;
+  z-index: 40;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom));
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(33, 30, 28, 0.14);
+  border-radius: 50%;
+  background: rgba(253, 247, 238, 0.92);
+  color: var(--color-ink);
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(33, 30, 28, 0.12);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: transform 0.25s ease, background 0.25s ease, color 0.25s ease;
+}
+
+.music-toggle:hover {
+  transform: scale(1.05);
+}
+
+.music-toggle:active {
+  transform: scale(0.96);
+}
+
+.music-toggle__icon {
+  display: none;
+  line-height: 0;
+}
+
+.music-toggle.is-playing .music-toggle__icon--on,
+.music-toggle.is-muted .music-toggle__icon--off,
+.music-toggle:not(.is-playing):not(.is-muted) .music-toggle__icon--off {
+  display: block;
+}
+
