@@ -1960,15 +1960,26 @@ body.is-gated {
   height: 48px;
   display: grid;
   place-items: center;
-  border: 1px solid rgba(33, 30, 28, 0.14);
+  border: 1px solid rgba(33, 30, 28, 0.1);
   border-radius: 50%;
-  background: rgba(253, 247, 238, 0.92);
+  background: rgba(253, 247, 238, 0.38);
   color: var(--color-ink);
   cursor: pointer;
-  box-shadow: 0 8px 20px rgba(33, 30, 28, 0.12);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 8px 20px rgba(33, 30, 28, 0.08);
+  -webkit-backdrop-filter: saturate(1.2) blur(16px);
+  backdrop-filter: saturate(1.2) blur(16px);
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
   transition: transform 0.25s ease, background 0.25s ease, color 0.25s ease;
+}
+
+@supports (-webkit-touch-callout: none) {
+  /* Safari: keep fill glassy so backdrop blur actually shows */
+  .music-toggle {
+    background: rgba(253, 247, 238, 0.28);
+    -webkit-backdrop-filter: saturate(1.35) blur(20px);
+    backdrop-filter: saturate(1.35) blur(20px);
+  }
 }
 
 .music-toggle:hover {
