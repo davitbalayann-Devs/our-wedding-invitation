@@ -1,16 +1,21 @@
 (() => {
+  const gsapLib = window.gsap;
+  const SplitTextLib = window.SplitText;
   const reducedMotion = window.matchMedia(
     "(prefers-reduced-motion: reduce)"
   ).matches;
 
   const defaults = {
-    delay: 140,
-    animateBy: "words",
-    direction: "top",
-    threshold: 0.28,
-    rootMargin: "0px 0px -8% 0px",
-    stepDuration: 0.48,
+    delay: 30,
+    duration: 0.4,
+    ease: "power3.out",
+    splitType: "words",
+    from: { opacity: 0, y: 40 },
+    to: { opacity: 1, y: 0 },
+    threshold: 0.1,
+    rootMargin: "-100px",
     staggerMs: 420,
+    showCallback: false,
   };
 
   const unitSelector =
@@ -25,151 +30,97 @@
     return "center";
   }
 
-  function createSegment(content, isWordMode, isLast) {
-    const span = document.createElement("span");
-    span.className = "blur-segment";
-    span.textContent = content === " " ? "\u00A0" : content;
-    if (isWordMode && !isLast) {
-      span.textContent += "\u00A0";
+  function getSplitTargets(splitInstance, splitType) {
+    if (splitType.includes("chars") && splitInstance.chars.length) {
+      return splitInstance.chars;
     }
-    return span;
-  }
-
-  function segmentsFromText(text, animateBy) {
-    if (animateBy === "chars") {
-      return text.split("").map((ch, i, arr) =>
-        createSegment(ch, false, i === arr.length - 1)
-      );
+    if (splitType.includes("words") && splitInstance.words.length) {
+      return splitInstance.words;
     }
-
-    const words = text.trim().split(/\s+/).filter(Boolean);
-    return words.map((word, i) =>
-      createSegment(word, true, i === words.length - 1)
-    );
-  }
-
-  function buildSegments(el, animateBy) {
-    const segments = [];
-    const childNodes = Array.from(el.childNodes);
-
-    const hasElementChildren = childNodes.some(
-      (node) => node.nodeType === Node.ELEMENT_NODE
-    );
-
-    if (!hasElementChildren) {
-      return segmentsFromText(el.textContent || "", animateBy);
+    if (splitType.includes("lines") && splitInstance.lines.length) {
+      return splitInstance.lines;
     }
-
-    childNodes.forEach((node) => {
-      if (node.nodeType === Node.TEXT_NODE) {
-        const text = node.textContent || "";
-        if (!text.trim()) return;
-        segments.push(...segmentsFromText(text, animateBy));
-        return;
-      }
-
-      if (node.nodeType === Node.ELEMENT_NODE) {
-        const wrap = document.createElement("span");
-        wrap.className = "blur-segment";
-        wrap.appendChild(node.cloneNode(true));
-        segments.push(wrap);
-      }
-    });
-
-    return segments;
-  }
-
-  function keyframesFor(direction) {
-    const fromY = direction === "top" ? -28 : 28;
-    const midY = direction === "top" ? 4 : -4;
-
-    return [
-      {
-        filter: "blur(12px)",
-        opacity: 0,
-        transform: `translateY(${fromY}px)`,
-      },
-      {
-        filter: "blur(5px)",
-        opacity: 0.45,
-        transform: `translateY(${midY}px)`,
-      },
-      {
-        filter: "blur(0px)",
-        opacity: 1,
-        transform: "translateY(0px)",
-      },
-    ];
+    return splitInstance.words.length
+      ? splitInstance.words
+      : splitInstance.chars.length
+        ? splitInstance.chars
+        : splitInstance.lines;
   }
 
   function prepare(el) {
-    if (el._blurPrepared) return;
+    if (el._splitPrepared) return;
 
-    const animateBy = el.dataset.blurBy || defaults.animateBy;
-    const direction = el.dataset.blurDirection || defaults.direction;
-    const segments = buildSegments(el, animateBy);
-
-    el.textContent = "";
     el.classList.add("blur-text");
     if (el.hasAttribute("data-blur-wrap")) {
       el.classList.add("blur-text--wrap");
     }
     el.style.justifyContent = justifyFromTextAlign(el);
-    segments.forEach((segment) => el.appendChild(segment));
 
-    const frames = keyframesFor(direction);
-    const from = frames[0];
+    if (reducedMotion || !gsapLib || !SplitTextLib) {
+      el._splitPrepared = true;
+      return;
+    }
 
-    segments.forEach((segment) => {
-      segment.style.filter = from.filter || "none";
-      segment.style.opacity = String(from.opacity);
-      segment.style.transform = from.transform;
+    const splitType = el.dataset.blurBy || defaults.splitType;
+    const split = new SplitTextLib(el, {
+      type: splitType,
+      linesClass: "split-line",
+      wordsClass: "blur-segment",
+      charsClass: "blur-segment",
+      reduceWhiteSpace: false,
+      smartWrap: false,
     });
 
-    el._blurSegments = segments;
-    el._blurDirection = direction;
-    el._blurPrepared = true;
+    const targets = getSplitTargets(split, splitType);
+    gsapLib.set(targets, defaults.from);
+
+    el._splitInstance = split;
+    el._splitTargets = targets;
+    el._splitPrepared = true;
   }
 
-  function playBlur(el) {
-    if (el._blurDone || el._blurPlaying) return;
+  function playSplit(el) {
+    if (el._splitDone || el._splitPlaying) return;
 
     prepare(el);
 
-    const segments = el._blurSegments || [];
-    if (reducedMotion || !segments.length) {
-      segments.forEach((segment) => {
-        segment.style.filter = "none";
-        segment.style.opacity = "1";
-        segment.style.transform = "translate3d(0, 0, 0)";
-      });
-      el._blurDone = true;
+    if (reducedMotion || !gsapLib || !SplitTextLib) {
+      el._splitDone = true;
+      el.style.opacity = "1";
+      return;
+    }
+
+    const targets = el._splitTargets || [];
+    if (!targets.length) {
+      el._splitDone = true;
       return;
     }
 
     const delay = Number(el.dataset.blurDelay ?? defaults.delay);
-    const stepDuration = Number(
-      el.dataset.blurStepDuration ?? defaults.stepDuration
-    );
-    const frames = keyframesFor(el._blurDirection || defaults.direction);
-    const duration = stepDuration * (frames.length - 1) * 1000;
+    const duration = Number(el.dataset.blurDuration ?? defaults.duration);
+    const ease = el.dataset.blurEase || defaults.ease;
+    const showCallback =
+      el.dataset.showCallback === "true" ? true : defaults.showCallback;
 
-    el._blurPlaying = true;
+    el._splitPlaying = true;
 
-    segments.forEach((segment, index) => {
-      const animation = segment.animate(frames, {
+    gsapLib.fromTo(
+      targets,
+      defaults.from,
+      {
+        ...defaults.to,
         duration,
-        delay: index * delay,
-        easing: "cubic-bezier(0.22, 1, 0.36, 1)",
-        fill: "forwards",
-      });
-
-      if (index === segments.length - 1) {
-        animation.onfinish = () => {
-          el._blurDone = true;
-        };
+        ease,
+        stagger: delay / 1000,
+        onComplete: () => {
+          el._splitDone = true;
+          el._splitPlaying = false;
+          if (showCallback) {
+            console.log("All letters have animated!");
+          }
+        },
       }
-    });
+    );
   }
 
   function playReveal(el) {
@@ -209,7 +160,7 @@
     pieces.forEach((el, index) => {
       const wait = reducedMotion ? 0 : index * defaults.staggerMs;
       window.setTimeout(() => {
-        if (el.hasAttribute("data-blur")) playBlur(el);
+        if (el.hasAttribute("data-blur")) playSplit(el);
         if (el.hasAttribute("data-reveal")) playReveal(el);
       }, wait);
     });
@@ -224,8 +175,8 @@
     if (initialized) return;
     initialized = true;
 
-    const blurEls = Array.from(document.querySelectorAll("[data-blur]"));
-    blurEls.forEach(prepare);
+    const splitEls = Array.from(document.querySelectorAll("[data-blur]"));
+    splitEls.forEach(prepare);
 
     const units = Array.from(document.querySelectorAll(unitSelector));
     if (!units.length) return;

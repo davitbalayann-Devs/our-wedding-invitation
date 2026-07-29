@@ -247,20 +247,16 @@ html.is-native-scroll .page__bg {
 }
 
 .blur-text {
-  display: flex;
-  flex-wrap: nowrap;
-  justify-content: center;
+  display: block;
   white-space: nowrap;
 }
 
 .blur-text.blur-text--wrap {
-  flex-wrap: wrap;
   white-space: normal;
 }
 
 .blur-segment {
   display: inline-block;
-  flex: none;
   white-space: nowrap;
   will-change: transform, filter, opacity;
 }
@@ -671,8 +667,8 @@ html.is-native-scroll .page__bg {
 
 .way__card-copy a {
   color: var(--color-link);
-  text-decoration: underline;
-  text-underline-offset: 0.12em;
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
 }
 
 .way__card-copy a:hover {
