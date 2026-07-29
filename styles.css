@@ -883,7 +883,7 @@ html.is-native-scroll .page__bg {
     z-index: 5;
     width: 100%;
     max-width: 100%;
-    padding: 8px 12px 14px;
+    padding: 10px 14px 18px;
     background: transparent;
     overflow: visible;
     overflow-wrap: break-word;
@@ -898,8 +898,7 @@ html.is-native-scroll .page__bg {
 
   .way__card-copy .blur-text,
   .way__card-copy .blur-text.blur-text--wrap {
-    display: flex;
-    flex-wrap: wrap;
+    display: block;
     white-space: normal;
     width: 100%;
     max-width: 100%;
@@ -907,10 +906,13 @@ html.is-native-scroll .page__bg {
 
   .way__card-copy h2 {
     font-size: 20px;
+    margin-bottom: 6px;
+    line-height: 1.22;
   }
 
   .way__card-copy p {
     font-size: 14px;
+    line-height: 1.45;
   }
 
   /* Keep cards from drifting over the measured path on phones */
