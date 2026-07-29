@@ -7,7 +7,16 @@
   --font-serif: "Ponomar", "Times New Roman", serif;
   --font-script: "Birthstone Bounce", cursive;
   --font-display: "Jomolhari", "Times New Roman", serif;
+  --font-annabelle: "Annabelle Cyr", "Birthstone Bounce", cursive;
   --page-max: 1440px;
+}
+
+@font-face {
+  font-family: "Annabelle Cyr";
+  src: url("assets/fonts/AnnabelleCyr.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
 }
 
 *,
@@ -23,6 +32,24 @@ html {
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+}
+
+/*
+ * Safari 26+ ignores theme-color. It tints the bottom toolbar from:
+ *   1) a fixed/sticky edge strip (≥3px tall, ≥80% wide, within ~3px of bottom)
+ *   2) else body background → that's why you saw solid #fdf7ee
+ *
+ * For a translucent bar: keep this strip WITHOUT background-color
+ * (do not set transparent — Safari then falls back to body and paints the fill).
+ */
+.safari-transparent-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  z-index: 9999;
+  pointer-events: none;
 }
 
 html,
@@ -669,10 +696,50 @@ html.is-native-scroll .page__bg {
   color: var(--color-link);
   text-decoration: none;
   border-bottom: 1px solid currentColor;
+  margin-left: 4px;
+  transition: color 0.25s ease, border-bottom-color 0.25s ease;
 }
 
 .way__card-copy a:hover {
   color: var(--color-ink);
+}
+
+.way__card-copy a.is-link-hint {
+  animation: way-link-hint 1.55s ease-in-out 0.12s 1;
+}
+
+@keyframes way-link-hint {
+  0%,
+  100% {
+    color: var(--color-link);
+    border-bottom-color: var(--color-link);
+    opacity: 1;
+    filter: brightness(1);
+  }
+  18% {
+    color: var(--color-ink);
+    border-bottom-color: var(--color-ink);
+    opacity: 1;
+    filter: brightness(1.12);
+  }
+  36% {
+    color: var(--color-link);
+    border-bottom-color: var(--color-link);
+    opacity: 0.72;
+    filter: brightness(1);
+  }
+  54% {
+    color: var(--color-ink);
+    border-bottom-color: var(--color-ink);
+    opacity: 1;
+    filter: brightness(1.1);
+  }
+  72% {
+    color: var(--color-link);
+    border-bottom-color: var(--color-link);
+    opacity: 0.8;
+    filter: brightness(1);
+  }
 }
 
 /* Frame 11 — left 149 top 48 w 323 */
@@ -695,7 +762,7 @@ html.is-native-scroll .page__bg {
 
 .way__card--villa .way__card-copy {
   width: 100%;
-  padding-left: 5px;
+  padding-left: 0;
 }
 
 /* Frame 10 — left 815 top 198 w 408 */
@@ -712,7 +779,7 @@ html.is-native-scroll .page__bg {
 
 .way__card--church .way__card-copy {
   width: 87.5%; /* 357 / 408 */
-  padding-left: 12px;
+  padding-left: 0;
 }
 
 /* Frame 12 — left 139 top 527 w 562 */
@@ -729,7 +796,7 @@ html.is-native-scroll .page__bg {
 
 .way__card--restaurant .way__card-copy {
   width: 100%;
-  padding-left: 6px;
+  padding-left: 0;
 }
 
 /* Desktop: widen cards + keep titles/locations on one line */
@@ -779,7 +846,7 @@ html.is-native-scroll .page__bg {
   .way__card--church .way__card-copy {
     width: max-content;
     min-width: 100%;
-    padding-left: 12px;
+    padding-left: 0;
   }
 
   .way__card--restaurant {
@@ -883,7 +950,7 @@ html.is-native-scroll .page__bg {
     z-index: 5;
     width: 100%;
     max-width: 100%;
-    padding: 10px 14px 18px;
+    padding: 10px 0 18px;
     background: transparent;
     overflow: visible;
     overflow-wrap: break-word;
@@ -940,47 +1007,26 @@ html.is-native-scroll .page__bg {
   /*
    * Line wrap is pinned in JS from previous art → next art (relative to leg).
    * Soft masks (also JS) hide the stroke through text plates.
+   * Lines removed from mobile — wrap kept hidden if reintroduced later.
    */
   .way__stage--mobile-paths .way__mobile-line-wrap {
-    right: 4%;
-    left: 4%;
-    bottom: auto;
-    z-index: -1;
-    display: block;
-    margin: 0;
-    overflow: visible;
-    pointer-events: none;
+    display: none !important;
   }
 
   .way__mobile-line-wrap {
-    position: absolute;
-    left: 4%;
-    right: 4%;
-    top: 0;
-    bottom: 0;
-    z-index: -1;
-    width: auto;
-    height: auto;
-    overflow: visible;
+    display: none !important;
   }
 
+  /* Generated stroke (unused while lines are off) */
   .way__mobile-line {
-    display: block;
-    width: 100%;
-    height: 100%;
-    overflow: visible;
-  }
-
-  .way__mobile-brush {
-    fill: none;
-    stroke: #ddd1b5;
+    display: none !important;
   }
 
   .way__mobile-car {
     position: absolute;
     z-index: 10;
     left: 50%;
-    /* top is set in JS to the path midpoint */
+    /* left/top are set in JS to the point where the stroke crosses */
     top: 42%;
     pointer-events: none;
     filter: none;
@@ -997,16 +1043,19 @@ html.is-native-scroll .page__bg {
     background: transparent;
   }
 
-  /* Solo car — only size / rotation; vertical slot comes from JS */
+  /* Solo car — only size / rotation; road contact point comes from JS.
+     Origin sits on the wheel line so the stroke runs beneath the tyres. */
   .way__mobile-car--solo {
-    width: clamp(78px, 24vw, 104px);
-    transform: translate(-50%, -55%) rotate(-27.27deg);
+    width: clamp(94px, 28.8vw, 200px);
+    transform-origin: 50% 92%;
+    transform: translate(-50%, -92%) rotate(-27.27deg);
   }
 
-  /* Convoy */
+  /* Convoy — lead car's wheels sit lower in the frame than the solo car's */
   .way__mobile-car--convoy {
-    width: clamp(150px, 48vw, 210px);
-    transform: translate(-50%, -55%) rotate(6deg);
+    width: clamp(150px, 48vw, 280px);
+    transform-origin: 50% 87%;
+    transform: translate(-50%, -87%) rotate(6deg);
   }
 
   .way__mobile-leg--church .way__mobile-car--solo {
@@ -1041,20 +1090,20 @@ html.is-native-scroll .page__bg {
 @keyframes way-car-drift {
   0%,
   100% {
-    transform: translate(-50%, -55%) rotate(-27.27deg);
+    transform: translate(-50%, -92%) rotate(-27.27deg);
   }
   50% {
-    transform: translate(calc(-50% + 5px), calc(-55% - 4px)) rotate(-23deg);
+    transform: translate(calc(-50% + 5px), calc(-92% - 4px)) rotate(-25deg);
   }
 }
 
 @keyframes way-car-drift-alt {
   0%,
   100% {
-    transform: translate(-50%, -55%) rotate(6deg);
+    transform: translate(-50%, -87%) rotate(6deg);
   }
   50% {
-    transform: translate(calc(-50% - 5px), calc(-55% - 3px)) rotate(10deg);
+    transform: translate(calc(-50% - 5px), calc(-87% - 3px)) rotate(8deg);
   }
 }
 
@@ -1071,6 +1120,311 @@ html.is-native-scroll .page__bg {
   .way__mobile-leg--church .way__mobile-car--solo,
   .way__mobile-leg--restaurant .way__mobile-car--convoy {
     animation: none;
+  }
+}
+
+/* —— Way line editor (?wayedit=1) —— */
+html.way-edit .way__stage {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  aspect-ratio: auto;
+  min-height: 0;
+}
+
+html.way-edit .way__decor {
+  display: none;
+}
+
+html.way-edit .way__card {
+  position: relative;
+  left: auto;
+  top: auto;
+  z-index: 1;
+  width: min(100%, 520px);
+  max-width: 100%;
+  margin: 0 auto;
+  gap: 8px;
+  overflow: visible;
+  transform: none !important;
+  /* Let handles above/below the art receive drags */
+  pointer-events: none;
+}
+
+html.way-edit .way__card a {
+  pointer-events: auto;
+}
+
+html.way-edit .way__card--villa .way__card-art {
+  height: auto;
+  padding-bottom: 0;
+  width: 100%;
+  aspect-ratio: 323 / 327;
+}
+
+html.way-edit .way__card--villa .way__card-art img {
+  position: static;
+}
+
+html.way-edit .way__card--church .way__card-art,
+html.way-edit .way__card--restaurant .way__card-art {
+  height: auto;
+  width: 100%;
+  aspect-ratio: auto;
+}
+
+html.way-edit .way__card-art img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+html.way-edit .way__card-copy,
+html.way-edit .way__card--church .way__card-copy,
+html.way-edit .way__card--restaurant .way__card-copy,
+html.way-edit .way__card--villa .way__card-copy {
+  position: relative;
+  z-index: 5;
+  width: 100%;
+  max-width: 100%;
+  padding: 10px 0 18px;
+}
+
+html.way-edit .way__mobile-leg {
+  position: relative;
+  display: block;
+  width: min(100%, 520px);
+  height: clamp(120px, 34vw, 160px);
+  margin: 8px auto 14px;
+  z-index: 20;
+  pointer-events: none;
+  overflow: visible;
+  isolation: isolate;
+}
+
+html.way-edit .way__stage--mobile-paths .way__mobile-line-wrap {
+  z-index: 2;
+  pointer-events: none;
+}
+
+html.way-edit .way-edit-overlay {
+  z-index: 40;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.way-edit-panel {
+  position: fixed;
+  z-index: 10000;
+  top: max(12px, env(safe-area-inset-top));
+  right: max(12px, env(safe-area-inset-right));
+  width: min(320px, calc(100vw - 24px));
+  max-height: calc(100dvh - 24px);
+  overflow: auto;
+  padding: 14px 14px 16px;
+  border: 1px solid rgba(33, 30, 28, 0.14);
+  border-radius: 14px;
+  background: rgba(253, 247, 238, 0.96);
+  box-shadow: 0 16px 40px rgba(33, 30, 28, 0.18);
+  color: #211e1c;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.way-edit-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.way-edit-panel__head strong {
+  font-size: 14px;
+}
+
+.way-edit-panel__close {
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 8px;
+  background: rgba(33, 30, 28, 0.08);
+  color: inherit;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.way-edit-panel__hint {
+  margin: 0 0 12px;
+  color: rgba(33, 30, 28, 0.72);
+}
+
+.way-edit-panel__hint code {
+  font-size: 11px;
+}
+
+.way-edit-swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  vertical-align: middle;
+  border: 1.5px solid #211e1c;
+}
+
+.way-edit-swatch--point {
+  background: #6b9ac4;
+}
+
+.way-edit-swatch--line {
+  background: #d9784c;
+}
+
+.way-edit-swatch--car {
+  background: #c4a35a;
+}
+
+.way-edit-field {
+  display: grid;
+  grid-template-columns: 72px 1fr auto;
+  gap: 6px 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.way-edit-field span:first-child {
+  font-size: 12px;
+  color: rgba(33, 30, 28, 0.7);
+}
+
+.way-edit-field input[type="range"],
+.way-edit-field input[type="number"],
+.way-edit-field select {
+  width: 100%;
+  min-width: 0;
+}
+
+.way-edit-field output {
+  min-width: 42px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.way-edit-field--check {
+  grid-template-columns: auto 1fr;
+  margin: 4px 0 10px;
+}
+
+.way-edit-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.way-edit-actions button,
+.way-edit-field button {
+  border: 1px solid rgba(33, 30, 28, 0.16);
+  border-radius: 8px;
+  background: #fff;
+  color: inherit;
+  padding: 6px 10px;
+  cursor: pointer;
+  font: inherit;
+}
+
+.way-edit-actions__primary {
+  background: #211e1c !important;
+  color: #fdf7ee !important;
+  border-color: #211e1c !important;
+}
+
+.way-edit-code {
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+  border: 1px solid rgba(33, 30, 28, 0.16);
+  border-radius: 8px;
+  padding: 8px;
+  font: 11px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+  background: rgba(255, 255, 255, 0.8);
+  color: inherit;
+}
+
+.way-edit-status {
+  margin: 8px 0 0;
+  color: #3d6b4f;
+  font-size: 12px;
+}
+
+.way-edit-overlay {
+  position: absolute;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.way-edit-handle {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  margin: 0;
+  padding: 0;
+  border: 2px solid #211e1c;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  cursor: grab;
+  box-shadow: 0 2px 8px rgba(33, 30, 28, 0.25);
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.way-edit-handle--point {
+  background: #6b9ac4;
+  z-index: 1;
+  font-size: 10px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+}
+
+.way-edit-handle--point span {
+  pointer-events: none;
+}
+
+.way-edit-handle--line {
+  width: 22px;
+  height: 22px;
+  background: #d9784c;
+  border-radius: 4px;
+  z-index: 2;
+}
+
+.way-edit-handle--car {
+  width: 24px;
+  height: 24px;
+  background: #c4a35a;
+  z-index: 3;
+}
+
+.way-edit-handle.is-dragging,
+.way-edit-handle:active {
+  cursor: grabbing;
+  transform: translate(-50%, -50%) scale(1.15);
+}
+
+@media (max-width: 860px) {
+  .way-edit-panel {
+    top: auto;
+    bottom: max(12px, env(safe-area-inset-bottom));
+    right: max(10px, env(safe-area-inset-right));
+    left: max(10px, env(safe-area-inset-left));
+    width: auto;
+    max-height: 42dvh;
   }
 }
 
@@ -1812,6 +2166,10 @@ body.lightbox-open {
     animation: none;
   }
 
+  .way__card-copy a.is-link-hint {
+    animation: none;
+  }
+
   .styling__reveal,
   .styling__shot {
     transform: none !important;
@@ -2023,5 +2381,65 @@ body.is-gated {
 .music-toggle.is-playing .music-toggle__icon--on,
 .music-toggle.is-muted .music-toggle__icon--off {
   display: block;
+}
+
+/* Russian: avoid English-style capitalize on Cyrillic copy */
+html[lang="ru"] .hero__names,
+html[lang="ru"] .invite__names,
+html[lang="ru"] .way__title,
+html[lang="ru"] .way__card-copy,
+html[lang="ru"] .countdown__headline h2 {
+  text-transform: none;
+}
+
+/* Russian hero: Annabelle Cyr, single line */
+html[lang="ru"] .hero__headline {
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.28em;
+  width: max-content;
+  max-width: min(100%, 94vw);
+}
+
+html[lang="ru"] .hero__eyebrow,
+html[lang="ru"] .hero__script {
+  font-family: var(--font-annabelle);
+  font-weight: 400;
+  font-size: clamp(34px, 6.2vw, 72px);
+  line-height: 1.05;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  margin: 0;
+  padding: 0;
+  max-width: none;
+  white-space: nowrap;
+}
+
+html[lang="ru"] .hero__eyebrow.blur-text,
+html[lang="ru"] .hero__script.blur-text {
+  display: inline-block;
+  white-space: nowrap;
+  flex-wrap: nowrap;
+}
+
+@media (max-width: 900px) {
+  html[lang="ru"] .hero__headline {
+    flex-wrap: nowrap;
+    max-width: 100%;
+    padding-inline: 8px;
+  }
+
+  html[lang="ru"] .hero__eyebrow,
+  html[lang="ru"] .hero__script {
+    font-size: clamp(26px, 8.4vw, 40px);
+  }
+
+  html[lang="ru"] .hero__eyebrow.blur-text,
+  html[lang="ru"] .hero__script.blur-text {
+    flex-wrap: nowrap;
+    white-space: nowrap;
+  }
 }
 

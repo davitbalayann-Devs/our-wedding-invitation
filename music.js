@@ -14,7 +14,11 @@
     toggle.classList.toggle("is-playing", playing);
     toggle.classList.toggle("is-muted", !playing);
     toggle.setAttribute("aria-pressed", playing ? "true" : "false");
-    toggle.setAttribute("aria-label", playing ? "Mute music" : "Play music");
+    const playLabel =
+      window.I18N?.t("music.play") || "Play music";
+    const muteLabel =
+      window.I18N?.t("music.mute") || "Mute music";
+    toggle.setAttribute("aria-label", playing ? muteLabel : playLabel);
   }
 
   function markPlaying() {

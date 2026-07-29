@@ -15,6 +15,10 @@
   ).matches;
   const coarsePointer = window.matchMedia("(hover: none), (pointer: coarse)")
     .matches;
+  // Mobile layout / touch — keep the original drag + click behaviour.
+  const mobileQuery = window.matchMedia(
+    "(max-width: 900px), (hover: none) and (pointer: coarse)"
+  );
 
   let lastFocus = null;
   let closingTimer = 0;
@@ -22,6 +26,7 @@
 
   // —— Marquee + drag state ——
   let offset = 0;
+  let pointerActive = false;
   let dragging = false;
   let dragPointerId = null;
   let startX = 0;
@@ -40,8 +45,15 @@
   let coasting = false;
 
   const AUTO_SPEED = coarsePointer ? 28 : 36; // px / second
-  const DRAG_THRESHOLD = 8;
   const RESUME_DELAY = 1400;
+
+  function isMobile() {
+    return mobileQuery.matches;
+  }
+
+  function dragThreshold() {
+    return isMobile() ? 8 : 10;
+  }
 
   function pauseCarousel() {
     carousel?.classList.add("is-paused");
@@ -105,7 +117,8 @@
     const dt = Math.min(48, ts - lastFrameTs) / 1000;
     lastFrameTs = ts;
 
-    if (dragging) return;
+    // Desktop: pause while pressed even before drag starts.
+    if (dragging || (!isMobile() && pointerActive)) return;
 
     if (coasting) {
       offset += velocity * dt * 60;
@@ -127,12 +140,27 @@
     applyTrackTransform();
   }
 
+  function shotFromEvent(event) {
+    const node =
+      typeof event.target?.closest === "function"
+        ? event.target.closest(".styling__shot[data-lightbox-src]")
+        : null;
+    return node || null;
+  }
+
+  function openShot(shot) {
+    if (!shot || !lightbox || !image) return;
+    const src = shot.getAttribute("data-lightbox-src");
+    if (!src) return;
+    const img = shot.querySelector("img");
+    openLightbox(src, img?.alt || "");
+  }
+
   function onPointerDown(event) {
     if (!carousel.classList.contains("is-revealed")) return;
     if (lightbox?.classList.contains("is-open")) return;
     if (event.button != null && event.button !== 0) return;
 
-    dragging = true;
     dragPointerId = event.pointerId;
     startX = event.clientX;
     startY = event.clientY;
@@ -142,11 +170,36 @@
     velocity = 0;
     axisLocked = null;
     movedFar = false;
+    suppressClick = false;
     coasting = false;
     autoplay = false;
     window.clearTimeout(resumeTimer);
-    carousel.classList.add("is-paused", "is-dragging");
 
+    if (isMobile()) {
+      // Previous mobile behaviour: capture immediately.
+      pointerActive = true;
+      dragging = true;
+      carousel.classList.add("is-paused", "is-dragging");
+      try {
+        carousel.setPointerCapture(event.pointerId);
+      } catch (_) {
+        /* noop */
+      }
+      return;
+    }
+
+    // Desktop: defer capture so a plain click still opens the lightbox.
+    pointerActive = true;
+    dragging = false;
+    carousel.classList.add("is-paused");
+  }
+
+  function beginDesktopDrag(event) {
+    if (dragging) return;
+    dragging = true;
+    movedFar = true;
+    suppressClick = true;
+    carousel.classList.add("is-dragging");
     try {
       carousel.setPointerCapture(event.pointerId);
     } catch (_) {
@@ -155,24 +208,42 @@
   }
 
   function onPointerMove(event) {
-    if (!dragging || event.pointerId !== dragPointerId) return;
+    if (event.pointerId !== dragPointerId) return;
+    if (isMobile()) {
+      if (!dragging) return;
+    } else if (!pointerActive) {
+      return;
+    }
 
     const dx = event.clientX - startX;
     const dy = event.clientY - startY;
+    const threshold = dragThreshold();
 
     if (!axisLocked) {
-      if (Math.abs(dx) < DRAG_THRESHOLD && Math.abs(dy) < DRAG_THRESHOLD) {
+      if (Math.abs(dx) < threshold && Math.abs(dy) < threshold) {
         return;
       }
       axisLocked = Math.abs(dx) >= Math.abs(dy) ? "x" : "y";
       if (axisLocked === "y") {
-        // Let the page scroll; abort horizontal drag.
-        endDrag(event, false);
+        if (isMobile()) {
+          // Let the page scroll; abort horizontal drag.
+          endDrag(event, false);
+        } else {
+          pointerActive = false;
+          dragPointerId = null;
+          axisLocked = null;
+          carousel.classList.remove("is-dragging");
+          if (!hovering) resumeCarousel(RESUME_DELAY);
+        }
         return;
+      }
+      if (!isMobile()) {
+        beginDesktopDrag(event);
       }
     }
 
     if (axisLocked !== "x") return;
+    if (!isMobile() && !dragging) return;
 
     event.preventDefault();
     movedFar = true;
@@ -191,16 +262,26 @@
   }
 
   function endDrag(event, withCoast = true) {
-    if (!dragging) return;
+    const mobile = isMobile();
+    const wasDragging = dragging;
+    const wasMoved = movedFar;
+
+    if (mobile) {
+      if (!dragging) return;
+    } else if (!pointerActive && !dragging) {
+      return;
+    }
+
     if (event && dragPointerId != null && event.pointerId !== dragPointerId) {
       return;
     }
 
+    pointerActive = false;
     dragging = false;
     carousel.classList.remove("is-dragging");
 
     try {
-      if (dragPointerId != null) {
+      if (dragPointerId != null && (mobile || wasDragging)) {
         carousel.releasePointerCapture(dragPointerId);
       }
     } catch (_) {
@@ -210,8 +291,7 @@
     dragPointerId = null;
     axisLocked = null;
 
-    if (withCoast && movedFar && Math.abs(velocity) > 0.05) {
-      // Convert px/ms → px/frame-ish scale used in tick
+    if (withCoast && wasMoved && Math.abs(velocity) > 0.05) {
       velocity = velocity * 16;
       coasting = true;
       lastFrameTs = 0;
@@ -223,11 +303,25 @@
       }
     }
 
-    // Allow next click after a short beat if this was a drag.
-    if (movedFar) {
+    if (mobile) {
+      // Previous mobile: clear suppress shortly; movedFar cleared on click.
+      if (wasMoved) {
+        window.setTimeout(() => {
+          suppressClick = false;
+        }, 80);
+      }
+      return;
+    }
+
+    if (wasMoved) {
+      suppressClick = true;
       window.setTimeout(() => {
         suppressClick = false;
-      }, 80);
+        movedFar = false;
+      }, 120);
+    } else {
+      suppressClick = false;
+      movedFar = false;
     }
   }
 
@@ -265,7 +359,11 @@
     carousel.addEventListener("pointerleave", (event) => {
       if (event.pointerType === "touch") return;
       hovering = false;
-      if (!dragging && !lightbox?.classList.contains("is-open")) {
+      if (
+        !dragging &&
+        !pointerActive &&
+        !lightbox?.classList.contains("is-open")
+      ) {
         resumeCarousel(400);
       }
     });
@@ -361,38 +459,28 @@
     closingTimer = window.setTimeout(finish, 420);
   }
 
+  function onShotClick(event) {
+    if (suppressClick || movedFar) {
+      event.preventDefault();
+      event.stopPropagation();
+      suppressClick = false;
+      movedFar = false;
+      return;
+    }
+    const shot = shotFromEvent(event) || event.currentTarget;
+    if (!shot?.getAttribute?.("data-lightbox-src")) return;
+    event.preventDefault();
+    openShot(shot);
+  }
+
   shots.forEach((shot) => {
-    shot.addEventListener("click", (event) => {
-      if (suppressClick || movedFar) {
-        event.preventDefault();
-        event.stopPropagation();
-        suppressClick = false;
-        movedFar = false;
-        return;
-      }
-      const src = shot.getAttribute("data-lightbox-src");
-      const img = shot.querySelector("img");
-      if (!src) return;
-      openLightbox(src, img?.alt || "");
-    });
+    shot.addEventListener("click", onShotClick);
   });
 
-  // Duplicate aria-hidden shots should also open the same lightbox when tapped
-  // after a non-drag interaction — they mirror the first set visually.
   document
     .querySelectorAll(".styling__shot[data-lightbox-src][aria-hidden='true']")
     .forEach((shot) => {
-      shot.addEventListener("click", (event) => {
-        if (suppressClick || movedFar) {
-          event.preventDefault();
-          suppressClick = false;
-          movedFar = false;
-          return;
-        }
-        const src = shot.getAttribute("data-lightbox-src");
-        if (!src) return;
-        openLightbox(src, "");
-      });
+      shot.addEventListener("click", onShotClick);
     });
 
   closeEls.forEach((el) => {

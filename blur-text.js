@@ -118,9 +118,28 @@
           if (showCallback) {
             console.log("All letters have animated!");
           }
+          hintWayLocationLink(el);
         },
       }
     );
+  }
+
+  function hintWayLocationLink(el) {
+    if (reducedMotion) return;
+    if (!el?.closest?.(".way__card-copy")) return;
+
+    const link = el.matches("a")
+      ? el
+      : el.querySelector("a[href]");
+    if (!link || link.classList.contains("is-link-hint")) return;
+
+    // Restart cleanly if class somehow lingered.
+    link.classList.remove("is-link-hint");
+    void link.offsetWidth;
+    link.classList.add("is-link-hint");
+
+    const clear = () => link.classList.remove("is-link-hint");
+    link.addEventListener("animationend", clear, { once: true });
   }
 
   function playReveal(el) {
@@ -174,6 +193,9 @@
   function init() {
     if (initialized) return;
     initialized = true;
+
+    // Ensure translations are applied before SplitText reads the DOM.
+    window.I18N?.apply?.();
 
     const splitEls = Array.from(document.querySelectorAll("[data-blur]"));
     splitEls.forEach(prepare);

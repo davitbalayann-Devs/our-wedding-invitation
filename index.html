@@ -6,17 +6,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     />
-    <!-- Chrome / older Safari. Safari 26+ ignores theme-color and uses Liquid Glass sampling. -->
-    <meta
-      name="theme-color"
-      content="#fdf7ee"
-      media="(prefers-color-scheme: light)"
-    />
-    <meta
-      name="theme-color"
-      content="#211e1c"
-      media="(prefers-color-scheme: dark)"
-    />
+    <meta name="theme-color" content="transparent" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="color-scheme" content="light" />
@@ -27,9 +17,11 @@
       href="https://fonts.googleapis.com/css2?family=Birthstone+Bounce:wght@400;500&family=Jomolhari&family=Ponomar&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css?v=20260728e" />
+    <link rel="stylesheet" href="styles.css?v=20260730j" />
+    <script src="i18n.js?v=20260729d"></script>
   </head>
   <body>
+    <div class="safari-transparent-nav" aria-hidden="true"></div>
     <div class="scroll-root" aria-hidden="true"></div>
 
     <div class="page" data-scroll-container>
@@ -39,11 +31,15 @@
           <div class="page__bg-pattern"></div>
         </div>
 
-        <section class="hero" aria-label="Wedding announcement">
+        <section class="hero" data-i18n-aria-label="hero.section" aria-label="Wedding announcement">
           <div class="hero__inner">
             <h1 class="hero__headline" data-scroll-item data-speed="1.35">
-              <span class="hero__eyebrow" data-blur>These kids Are</span>
-              <span class="hero__script" data-blur data-blur-by="chars"
+              <span class="hero__eyebrow" data-blur data-i18n="hero.eyebrow">These kids Are</span>
+              <span
+                class="hero__script"
+                data-blur
+                data-blur-by="chars"
+                data-i18n="hero.script"
                 >getting married!</span
               >
             </h1>
@@ -60,6 +56,7 @@
                   <img
                     class="polaroid__image"
                     src="assets/polaroid-photo.png"
+                    data-i18n-alt="hero.photoAlt"
                     alt="Davit and Monica as children"
                   />
                 </div>
@@ -72,11 +69,16 @@
           </div>
         </section>
 
-        <section class="invite" aria-label="Save the date">
+        <section class="invite" data-i18n-aria-label="invite.section" aria-label="Save the date">
           <div class="invite__date-block" data-scroll-item data-speed="1.04">
             <div class="invite__date-group">
-              <p class="invite__label" data-blur>Save the Date</p>
-              <div class="invite__date" data-reveal aria-label="16 August 2026">
+              <p class="invite__label" data-blur data-i18n="invite.label">Save the Date</p>
+              <div
+                class="invite__date"
+                data-reveal
+                data-i18n-aria-label="invite.dateLabel"
+                aria-label="16 August 2026"
+              >
                 <span>16</span>
                 <i class="invite__rule" aria-hidden="true"></i>
                 <span>08</span>
@@ -90,6 +92,7 @@
           <figure class="invite__art" data-scroll-item data-speed="1" data-reveal>
             <img
               src="assets/wedding-party.png"
+              data-i18n-alt="invite.artAlt"
               alt="Illustrated wedding party celebrating"
               loading="lazy"
               decoding="async"
@@ -101,13 +104,14 @@
             data-scroll-item
             data-speed="1"
             data-blur
+            data-i18n="invite.message"
           >
             Invite you to the celebration of their marriage
           </p>
         </section>
 
-        <section class="way" aria-label="Wedding day itinerary">
-          <h2 class="way__title" data-blur>Wedding Timeline</h2>
+        <section class="way" data-i18n-aria-label="way.section" aria-label="Wedding day itinerary">
+          <h2 class="way__title" data-blur data-i18n="way.title">Wedding Timeline</h2>
           <div class="way__stage">
             <!-- Decorative route: path + cars share one layer (Figma 1440×1000) -->
             <div class="way__decor" data-scroll-item data-speed="1" aria-hidden="true">
@@ -128,74 +132,29 @@
               <div class="way__card-art">
                 <img
                   src="assets/way-villa.png"
+                  data-i18n-alt="way.villaAlt"
                   alt="Villa Ayghedzor illustration"
                   loading="lazy"
                   decoding="async"
                 />
               </div>
               <div class="way__card-copy">
-                <h2 data-blur data-blur-wrap>Villa Ayghedzor | 11:00</h2>
-                <p data-blur data-blur-wrap>
-                  <span>Location: </span>
-                  <a
+                <h2 data-blur data-blur-wrap data-i18n="way.villaTitle">Villa Ayghedzor | 11:00</h2>
+                <p data-blur data-blur-wrap
+                  ><span data-i18n="way.locationLabel">Location:</span
+                  ><a
                     href="https://yandex.com/maps/-/CTbruH28"
                     target="_blank"
                     rel="noopener noreferrer"
+                    data-i18n="way.villaAddress"
                     >Aygedzor Street, 23, Yerevan</a
-                  >
-                </p>
+                  ></p
+                >
               </div>
             </article>
 
             <!-- Mobile route: Villa → Church -->
             <div class="way__mobile-leg way__mobile-leg--church" aria-hidden="true">
-              <div class="way__mobile-line-wrap">
-                <svg
-                  class="way__mobile-line"
-                  viewBox="0 0 200 100"
-                  xmlns="http://www.w3.org/2000/svg"
-                  preserveAspectRatio="none"
-                >
-                  <defs>
-                    <filter
-                      id="way-new-wave-a"
-                      x="-20%"
-                      y="-20%"
-                      width="140%"
-                      height="140%"
-                      color-interpolation-filters="sRGB"
-                    >
-                      <feTurbulence
-                        type="fractalNoise"
-                        baseFrequency="0.05 0.14"
-                        numOctaves="2"
-                        seed="7"
-                        result="noise"
-                      />
-                      <feDisplacementMap
-                        in="SourceGraphic"
-                        in2="noise"
-                        scale="1.1"
-                        xChannelSelector="R"
-                        yChannelSelector="G"
-                      />
-                    </filter>
-                  </defs>
-                  <path
-                    class="way__mobile-brush"
-                    fill="none"
-                    stroke="#DDD1B5"
-                    stroke-width="8"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    vector-effect="non-scaling-stroke"
-                    d="M100 0
-                       C 78 8, 28 22, 18 40
-                       C 22 52, 70 62, 100 70
-                       C 122 78, 118 88, 100 100"
-                  />
-                </svg>
-              </div>
               <div class="way__mobile-car way__mobile-car--solo">
                 <img src="assets/way-car.png" alt="" loading="lazy" decoding="async" />
               </div>
@@ -205,74 +164,29 @@
               <div class="way__card-art">
                 <img
                   src="assets/way-church.png"
+                  data-i18n-alt="way.churchAlt"
                   alt="Saint Anna Church illustration"
                   loading="lazy"
                   decoding="async"
                 />
               </div>
               <div class="way__card-copy">
-                <h2 data-blur data-blur-wrap>Saint Anna Church | 15:00</h2>
-                <p data-blur data-blur-wrap>
-                  <span>Location: </span>
-                  <a
+                <h2 data-blur data-blur-wrap data-i18n="way.churchTitle">Saint Anna Church | 15:00</h2>
+                <p data-blur data-blur-wrap
+                  ><span data-i18n="way.locationLabel">Location:</span
+                  ><a
                     href="https://yandex.com/maps/-/CTbryH1a"
                     target="_blank"
                     rel="noopener noreferrer"
+                    data-i18n="way.churchAddress"
                     >Abovyan Street, 15, Yerevan</a
-                  >
-                </p>
+                  ></p
+                >
               </div>
             </article>
 
             <!-- Mobile route: Church → Restaurant -->
             <div class="way__mobile-leg way__mobile-leg--restaurant" aria-hidden="true">
-              <div class="way__mobile-line-wrap">
-                <svg
-                  class="way__mobile-line"
-                  viewBox="0 0 200 100"
-                  xmlns="http://www.w3.org/2000/svg"
-                  preserveAspectRatio="none"
-                >
-                  <defs>
-                    <filter
-                      id="way-new-wave-b"
-                      x="-20%"
-                      y="-20%"
-                      width="140%"
-                      height="140%"
-                      color-interpolation-filters="sRGB"
-                    >
-                      <feTurbulence
-                        type="fractalNoise"
-                        baseFrequency="0.045 0.13"
-                        numOctaves="2"
-                        seed="13"
-                        result="noise"
-                      />
-                      <feDisplacementMap
-                        in="SourceGraphic"
-                        in2="noise"
-                        scale="1.2"
-                        xChannelSelector="R"
-                        yChannelSelector="G"
-                      />
-                    </filter>
-                  </defs>
-                  <path
-                    class="way__mobile-brush"
-                    fill="none"
-                    stroke="#DDD1B5"
-                    stroke-width="8"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    vector-effect="non-scaling-stroke"
-                    d="M100 0
-                       C 122 8, 172 22, 182 40
-                       C 178 52, 130 62, 100 70
-                       C 78 78, 82 88, 100 100"
-                  />
-                </svg>
-              </div>
               <div class="way__mobile-car way__mobile-car--convoy">
                 <img src="assets/way-convoy.png" alt="" loading="lazy" decoding="async" />
               </div>
@@ -282,46 +196,100 @@
               <div class="way__card-art">
                 <img
                   src="assets/way-restaurant.png"
+                  data-i18n-alt="way.restaurantAlt"
                   alt="Hrashq Aygi Restaurant illustration"
                   loading="lazy"
                   decoding="async"
                 />
               </div>
               <div class="way__card-copy">
-                <h2 data-blur data-blur-wrap>Hrashq Aygi Restaurant | 17:30</h2>
-                <p data-blur data-blur-wrap>
-                  <span>Location: </span>
-                  <a
+                <h2 data-blur data-blur-wrap data-i18n="way.restaurantTitle">
+                  Hrashq Aygi Restaurant | 17:30
+                </h2>
+                <p data-blur data-blur-wrap
+                  ><span data-i18n="way.locationLabel">Location:</span
+                  ><a
                     href="https://yandex.com/maps/-/CTbrBIpm"
                     target="_blank"
                     rel="noopener noreferrer"
+                    data-i18n="way.restaurantAddress"
                     >Ditak village, Gevorgyan Street, 1</a
-                  >
-                </p>
+                  ></p
+                >
               </div>
             </article>
           </div>
         </section>
 
-        <section class="styling" aria-label="Restaurant styling">
+        <section class="styling" data-i18n-aria-label="styling.section" aria-label="Restaurant styling">
           <div class="styling__copy">
-            <h2 data-blur data-blur-wrap>Wondering what to wear to the party?</h2>
+            <h2 data-blur data-blur-wrap data-i18n="styling.title">
+              Wondering what to wear to the party?
+            </h2>
           </div>
           <div class="styling__inner">
             <div class="styling__carousel">
               <div class="styling__reveal">
                 <div class="styling__track">
-                  <button type="button" class="styling__shot" data-lightbox-src="assets/style-1.jpg" aria-label="Open restaurant photo 1">
-                    <img src="assets/style-1.jpg" alt="Hrashq Aygi restaurant interior with woven pendant lights" loading="lazy" decoding="async" />
+                  <button
+                    type="button"
+                    class="styling__shot"
+                    data-lightbox-src="assets/style-1.jpg"
+                    data-i18n-aria-label="styling.photo1"
+                    aria-label="Open restaurant photo 1"
+                  >
+                    <img
+                      src="assets/style-1.jpg"
+                      data-i18n-alt="styling.alt1"
+                      alt="Hrashq Aygi restaurant interior with woven pendant lights"
+                      loading="lazy"
+                      decoding="async"
+                    />
                   </button>
-                  <button type="button" class="styling__shot" data-lightbox-src="assets/style-2.jpg" aria-label="Open restaurant photo 2">
-                    <img src="assets/style-2.jpg" alt="Dining tables and white chairs at Hrashq Aygi" loading="lazy" decoding="async" />
+                  <button
+                    type="button"
+                    class="styling__shot"
+                    data-lightbox-src="assets/style-2.jpg"
+                    data-i18n-aria-label="styling.photo2"
+                    aria-label="Open restaurant photo 2"
+                  >
+                    <img
+                      src="assets/style-2.jpg"
+                      data-i18n-alt="styling.alt2"
+                      alt="Dining tables and white chairs at Hrashq Aygi"
+                      loading="lazy"
+                      decoding="async"
+                    />
                   </button>
-                  <button type="button" class="styling__shot" data-lightbox-src="assets/style-3.jpg" aria-label="Open restaurant photo 3">
-                    <img src="assets/style-3.jpg" alt="Palm trees and soft lighting in the restaurant" loading="lazy" decoding="async" />
+                  <button
+                    type="button"
+                    class="styling__shot"
+                    data-lightbox-src="assets/style-3.jpg"
+                    data-i18n-aria-label="styling.photo3"
+                    aria-label="Open restaurant photo 3"
+                  >
+                    <img
+                      src="assets/style-3.jpg"
+                      data-i18n-alt="styling.alt3"
+                      alt="Palm trees and soft lighting in the restaurant"
+                      loading="lazy"
+                      decoding="async"
+                    />
                   </button>
-                  <button type="button" class="styling__shot" data-lightbox-src="assets/style-4.jpg" aria-label="Open restaurant photo 4">
-                    <img src="assets/style-4.jpg" alt="Long dining hall with textured walls" loading="lazy" decoding="async" />
+                  <button
+                    type="button"
+                    class="styling__shot"
+                    data-lightbox-src="assets/style-4.jpg"
+                    data-i18n-aria-label="styling.photo4"
+                    aria-label="Open restaurant photo 4"
+                  >
+                    <img
+                      src="assets/style-4.jpg"
+                      data-i18n-alt="styling.alt4"
+                      alt="Long dining hall with textured walls"
+                      loading="lazy"
+                      decoding="async"
+                    />
                   </button>
                   <!-- Duplicate set for seamless loop -->
                   <button type="button" class="styling__shot" data-lightbox-src="assets/style-1.jpg" tabindex="-1" aria-hidden="true">
@@ -341,7 +309,7 @@
             </div>
 
             <div class="styling__copy">
-              <p data-blur data-blur-wrap>
+              <p data-blur data-blur-wrap data-i18n="styling.body">
                 There is no strict dress code- wear whatever makes you feel great! Let these photos of our venue inspire your perfect party look.
               </p>
             </div>
@@ -350,13 +318,16 @@
 
         <section
           class="countdown"
+          data-i18n-aria-label="countdown.section"
           aria-label="Countdown to the wedding"
           data-countdown-to="2026-08-16T11:00:00+04:00"
         >
           <div class="countdown__inner">
             <div class="countdown__headline">
-              <h2 data-blur data-blur-wrap>Counting down to our big day!</h2>
-              <p data-blur>See you in...</p>
+              <h2 data-blur data-blur-wrap data-i18n="countdown.title">
+                Counting down to our big day!
+              </h2>
+              <p data-blur data-i18n="countdown.subtitle">See you in...</p>
             </div>
 
             <div
@@ -367,22 +338,22 @@
             >
               <div class="countdown__unit">
                 <span class="countdown__value" data-unit="days">00</span>
-                <span class="countdown__label">Days</span>
+                <span class="countdown__label" data-i18n="countdown.days">Days</span>
               </div>
               <i class="countdown__sep" aria-hidden="true"></i>
               <div class="countdown__unit">
                 <span class="countdown__value" data-unit="hours">00</span>
-                <span class="countdown__label">Hours</span>
+                <span class="countdown__label" data-i18n="countdown.hours">Hours</span>
               </div>
               <i class="countdown__sep" aria-hidden="true"></i>
               <div class="countdown__unit">
                 <span class="countdown__value" data-unit="minutes">00</span>
-                <span class="countdown__label">Minutes</span>
+                <span class="countdown__label" data-i18n="countdown.minutes">Minutes</span>
               </div>
               <i class="countdown__sep" aria-hidden="true"></i>
               <div class="countdown__unit">
                 <span class="countdown__value" data-unit="seconds">00</span>
-                <span class="countdown__label">Seconds</span>
+                <span class="countdown__label" data-i18n="countdown.seconds">Seconds</span>
               </div>
             </div>
           </div>
@@ -391,10 +362,20 @@
     </div>
 
     <div class="lightbox" id="lightbox" hidden>
-      <button type="button" class="lightbox__backdrop" aria-label="Close photo"></button>
+      <button
+        type="button"
+        class="lightbox__backdrop"
+        data-i18n-aria-label="lightbox.close"
+        aria-label="Close photo"
+      ></button>
       <figure class="lightbox__figure">
         <img class="lightbox__image" src="" alt="" />
-        <button type="button" class="lightbox__close" aria-label="Close photo">
+        <button
+          type="button"
+          class="lightbox__close"
+          data-i18n-aria-label="lightbox.close"
+          aria-label="Close photo"
+        >
           <span aria-hidden="true">&times;</span>
         </button>
       </figure>
@@ -403,8 +384,10 @@
     <div class="invite-gate" id="invite-gate" role="dialog" aria-modal="true" aria-labelledby="invite-gate-title">
       <button type="button" class="invite-gate__hit" id="invite-gate-open">
         <span class="invite-gate__eyebrow">Davit & Monica</span>
-        <span class="invite-gate__title" id="invite-gate-title">Open invitation</span>
-        <span class="invite-gate__hint">Tap to enter</span>
+        <span class="invite-gate__title" id="invite-gate-title" data-i18n="gate.title"
+          >Open invitation</span
+        >
+        <span class="invite-gate__hint" data-i18n="gate.hint">Tap to enter</span>
       </button>
     </div>
 
@@ -422,6 +405,8 @@
       class="music-toggle"
       id="music-toggle"
       aria-pressed="false"
+      data-i18n-aria-label="music.play"
+      data-i18n-title="music.title"
       aria-label="Play music"
       title="Music"
     >
@@ -455,10 +440,10 @@
     <script src="scroll.js?v=20260728e"></script>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/SplitText.min.js"></script>
-    <script src="blur-text.js?v=20260729a"></script>
-    <script src="styling.js?v=20260728e"></script>
+    <script src="blur-text.js?v=20260729e"></script>
+    <script src="styling.js?v=20260730d"></script>
     <script src="countdown.js?v=20260728e"></script>
-    <script src="way-mobile.js?v=20260728e"></script>
-    <script src="music.js?v=20260728e"></script>
+    <script src="way-mobile.js?v=20260730j"></script>
+    <script src="music.js?v=20260729b"></script>
   </body>
 </html>
