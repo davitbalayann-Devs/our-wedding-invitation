@@ -10,6 +10,13 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="color-scheme" content="light" />
+    <script>
+      /* Lock viewport height before paint — Safari chrome must not resize sections. */
+      (function () {
+        var h = window.innerHeight;
+        if (h) document.documentElement.style.setProperty("--app-height", h + "px");
+      })();
+    </script>
     <title>Davit & Monica — Getting Married</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -17,7 +24,7 @@
       href="https://fonts.googleapis.com/css2?family=Birthstone+Bounce:wght@400;500&family=Jomolhari&family=Ponomar&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css?v=20260730j" />
+    <link rel="stylesheet" href="styles.css?v=20260731d" />
     <script src="i18n.js?v=20260729d"></script>
   </head>
   <body>
@@ -113,6 +120,41 @@
         <section class="way" data-i18n-aria-label="way.section" aria-label="Wedding day itinerary">
           <h2 class="way__title" data-blur data-i18n="way.title">Wedding Timeline</h2>
           <div class="way__stage">
+            <!-- One continuous mobile road: villa → cars → restaurant art -->
+            <svg
+              class="way__mobile-road way__mobile-road--full"
+              viewBox="-80 0 260 1000"
+              preserveAspectRatio="none"
+              overflow="visible"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
+              <path
+                class="way__mobile-road-bed"
+                d="M 50 20
+                   C 50 80, 52 140, 50 190
+                   C 48 230, 12 255, 12 300
+                   C 12 345, 50 340, 50 365
+                   C 50 420, 55 480, 50 540
+                   C 46 600, 50 640, 50 670
+                   C 50 695, 88 715, 88 755
+                   C 88 795, 50 790, 50 820
+                   C 50 870, 50 910, 50 955"
+              />
+              <path
+                class="way__mobile-road-dash"
+                d="M 50 20
+                   C 50 80, 52 140, 50 190
+                   C 48 230, 12 255, 12 300
+                   C 12 345, 50 340, 50 365
+                   C 50 420, 55 480, 50 540
+                   C 46 600, 50 640, 50 670
+                   C 50 695, 88 715, 88 755
+                   C 88 795, 50 790, 50 820
+                   C 50 870, 50 910, 50 955"
+              />
+            </svg>
+
             <!-- Decorative route: path + cars share one layer (Figma 1440×1000) -->
             <div class="way__decor" data-scroll-item data-speed="1" aria-hidden="true">
               <div class="way__path">
@@ -437,13 +479,14 @@
       </span>
     </button>
 
-    <script src="scroll.js?v=20260728e"></script>
+    <script src="scroll.js?v=20260730m"></script>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/SplitText.min.js"></script>
     <script src="blur-text.js?v=20260729e"></script>
     <script src="styling.js?v=20260730d"></script>
     <script src="countdown.js?v=20260728e"></script>
-    <script src="way-mobile.js?v=20260730j"></script>
+    <script src="way-mobile.js?v=20260731d"></script>
+    <script src="way-edit.js?v=20260731d"></script>
     <script src="music.js?v=20260729b"></script>
   </body>
 </html>

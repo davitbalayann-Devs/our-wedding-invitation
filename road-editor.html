@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ru" class="way-edit road-editor">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1"
+    />
+    <meta name="theme-color" content="#f6efe2" />
+    <title>Road editor — Wedding timeline</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Birthstone+Bounce:wght@400;500&family=Jomolhari&family=Ponomar&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css?v=20260731d" />
+  </head>
+  <body class="road-editor-body">
+    <header class="road-editor-bar">
+      <div class="road-editor-bar__copy">
+        <strong>Редактор дороги</strong>
+        <span data-road-status data-state="ok">Loading…</span>
+      </div>
+      <div class="road-editor-bar__tools">
+        <label class="way-edit-field road-editor-width">
+          <span>Width</span>
+          <input data-edit="width" type="range" min="3" max="16" step="0.5" />
+          <output data-edit="width-out">7.5</output>
+        </label>
+        <button type="button" data-edit="add">+ Segment</button>
+        <button type="button" data-edit="reload">Reload</button>
+        <a class="road-editor-bar__link" href="./">Открыть сайт</a>
+      </div>
+    </header>
+
+    <main class="road-editor-main">
+      <section class="way" aria-label="Wedding day itinerary">
+        <h2 class="way__title">Wedding Timeline</h2>
+        <div class="way__stage">
+          <svg
+            class="way__mobile-road way__mobile-road--full"
+            viewBox="-80 0 260 1000"
+            preserveAspectRatio="none"
+            overflow="visible"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <path class="way__mobile-road-bed" d="M 50 20 C 50 80, 52 140, 50 190" />
+            <path class="way__mobile-road-dash" d="M 50 20 C 50 80, 52 140, 50 190" />
+          </svg>
+
+          <div class="way__decor" aria-hidden="true"></div>
+
+          <article class="way__card way__card--villa">
+            <div class="way__card-art">
+              <img
+                src="assets/way-villa.png"
+                alt="Villa Ayghedzor"
+                loading="eager"
+                decoding="async"
+              />
+            </div>
+            <div class="way__card-copy">
+              <h2>Villa Ayghedzor | 11:00</h2>
+              <p><span>Location:</span><a href="#">Aygedzor Street, 23, Yerevan</a></p>
+            </div>
+          </article>
+
+          <div class="way__mobile-leg way__mobile-leg--church" aria-hidden="true">
+            <div class="way__mobile-car way__mobile-car--solo">
+              <img src="assets/way-car.png" alt="" loading="eager" decoding="async" />
+            </div>
+          </div>
+
+          <article class="way__card way__card--church">
+            <div class="way__card-art">
+              <img
+                src="assets/way-church.png"
+                alt="Saint Anna Church"
+                loading="eager"
+                decoding="async"
+              />
+            </div>
+            <div class="way__card-copy">
+              <h2>Saint Anna Church | 15:00</h2>
+              <p><span>Location:</span><a href="#">Abovyan Street, 15, Yerevan</a></p>
+            </div>
+          </article>
+
+          <div class="way__mobile-leg way__mobile-leg--restaurant" aria-hidden="true">
+            <div class="way__mobile-car way__mobile-car--convoy">
+              <img src="assets/way-convoy.png" alt="" loading="eager" decoding="async" />
+            </div>
+          </div>
+
+          <article class="way__card way__card--restaurant">
+            <div class="way__card-art">
+              <img
+                src="assets/way-restaurant.png"
+                alt="Hrashq Aygi Restaurant"
+                loading="eager"
+                decoding="async"
+              />
+            </div>
+            <div class="way__card-copy">
+              <h2>Hrashq Aygi Restaurant | 17:30</h2>
+              <p>
+                <span>Location:</span
+                ><a href="#">Ditak village, Gevorgyan Street, 1</a>
+              </p>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <script src="way-mobile.js?v=20260731d"></script>
+    <script src="road-editor.js?v=20260731d"></script>
+  </body>
+</html>

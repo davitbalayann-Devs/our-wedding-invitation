@@ -34,8 +34,20 @@
   let touchStartX = 0;
   let touchActive = false;
 
+  // Ignore Safari chrome show/hide (height-only resizes). Only react to width
+  // changes / orientation so section heights stay locked while scrolling.
+  let lastLayoutWidth = window.innerWidth;
+
+  function lockAppHeight() {
+    const h = window.innerHeight;
+    if (!h) return;
+    document.documentElement.style.setProperty("--app-height", `${h}px`);
+  }
+
   function applyParallax(y) {
     if (reducedMotion) return;
+    // Parallax + collapsing browser chrome fights native scroll on phones.
+    if (useNativeScroll) return;
 
     for (const item of items) {
       const offset = -y * (item.speed - 1);
@@ -74,13 +86,8 @@
       ticking = false;
       if (content) content.style.removeProperty("--scroll-y");
       if (scrollRoot) scrollRoot.style.height = "0px";
-
-      if (reducedMotion) {
-        clearParallax();
-        return;
-      }
-
-      applyTransforms(window.scrollY || 0);
+      clearParallax();
+      lockAppHeight();
       return;
     }
 
@@ -123,15 +130,7 @@
     const y = window.scrollY || 0;
 
     if (useNativeScroll) {
-      if (reducedMotion) return;
-      target = y;
-      if (!ticking) {
-        ticking = true;
-        requestAnimationFrame(() => {
-          applyTransforms(window.scrollY || 0);
-          ticking = false;
-        });
-      }
+      // Native scroll owns motion; no JS transforms on phones.
       return;
     }
 
@@ -143,17 +142,34 @@
   }
 
   function onResize() {
+    const width = window.innerWidth;
+    const widthChanged = width !== lastLayoutWidth;
+    lastLayoutWidth = width;
+
+    // Height-only changes = browser chrome toggling. Do not reflow sections.
+    if (useNativeScroll && !widthChanged) return;
+
+    if (widthChanged || !useNativeScroll) {
+      lockAppHeight();
+    }
+
     syncMode();
     if (reducedMotion || snapLocked) return;
     target = window.scrollY || 0;
-    if (useNativeScroll) {
-      applyTransforms(target);
-      return;
-    }
+    if (useNativeScroll) return;
     if (!ticking) {
       ticking = true;
       requestAnimationFrame(tick);
     }
+  }
+
+  function onOrientationChange() {
+    lastLayoutWidth = -1;
+    window.setTimeout(() => {
+      lastLayoutWidth = window.innerWidth;
+      lockAppHeight();
+      syncMode();
+    }, 250);
   }
 
   function sectionScrollTop(el) {
@@ -251,6 +267,8 @@
   }
 
   function trySnap(direction, event) {
+    // On phones, section snap fights the browser chrome animation and feels jumpy.
+    if (useNativeScroll) return false;
     if (reducedMotion || snapLocked || isLightboxOpen()) return false;
     if (!direction) return false;
 
@@ -276,6 +294,7 @@
   }
 
   function onTouchStart(event) {
+    if (useNativeScroll) return;
     if (event.touches.length !== 1) return;
     touchActive = true;
     touchStartY = event.touches[0].clientY;
@@ -283,6 +302,10 @@
   }
 
   function onTouchEnd(event) {
+    if (useNativeScroll) {
+      touchActive = false;
+      return;
+    }
     if (!touchActive || snapLocked) {
       touchActive = false;
       return;
@@ -310,16 +333,20 @@
     }
   }
 
+  lockAppHeight();
   syncMode();
 
   window.addEventListener("scroll", onScroll, { passive: true });
   window.addEventListener("resize", onResize, { passive: true });
-  window.addEventListener("orientationchange", onResize, { passive: true });
+  window.addEventListener("orientationchange", onOrientationChange, {
+    passive: true,
+  });
   window.addEventListener("wheel", onWheel, { passive: false });
   window.addEventListener("touchstart", onTouchStart, { passive: true });
   window.addEventListener("touchend", onTouchEnd, { passive: true });
   window.addEventListener("keydown", onKeyDown);
   window.addEventListener("load", () => {
+    lockAppHeight();
     syncMode();
     setScrollHeight();
   });
@@ -333,7 +360,10 @@
   if (document.fonts?.ready) {
     document.fonts.ready.then(() => {
       setScrollHeight();
-      if (useNativeScroll) syncMode();
+      if (useNativeScroll) {
+        lockAppHeight();
+        syncMode();
+      }
     });
   }
 

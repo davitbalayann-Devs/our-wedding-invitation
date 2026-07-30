@@ -9,6 +9,8 @@
   --font-display: "Jomolhari", "Times New Roman", serif;
   --font-annabelle: "Annabelle Cyr", "Birthstone Bounce", cursive;
   --page-max: 1440px;
+  /* Locked on phones so Safari chrome show/hide does not resize sections. */
+  --app-height: 100svh;
 }
 
 @font-face {
@@ -95,6 +97,10 @@ html.is-native-scroll .page__content {
 
 html.is-native-scroll .page__bg {
   position: fixed;
+  /* Large viewport keeps the fill stable while Safari chrome toggles */
+  inset: 0;
+  height: 100lvh;
+  min-height: 100%;
 }
 
 /* Apply before JS runs so phones never start in fixed-scroll mode. */
@@ -133,6 +139,9 @@ html.is-native-scroll .page__bg {
 
   .page__bg {
     position: fixed;
+    inset: 0;
+    height: 100lvh;
+    min-height: 100%;
   }
 }
 
@@ -631,6 +640,11 @@ html.is-native-scroll .page__bg {
   filter: drop-shadow(0 8px 10px rgba(33, 30, 28, 0.22));
 }
 
+/* Mobile-only continuous road — hidden on desktop */
+.way__mobile-road--full {
+  display: none;
+}
+
 /* Mobile-only route connectors (drawn path + cars between stops) */
 .way__mobile-leg {
   display: none;
@@ -886,10 +900,47 @@ html.is-native-scroll .page__bg {
     gap: 0;
     aspect-ratio: auto;
     min-height: 0;
+    position: relative;
+    overflow: visible;
   }
 
   .way__decor {
     display: none;
+  }
+
+  /* Single continuous road behind cards & cars */
+  .way__mobile-road--full {
+    display: block;
+    position: absolute;
+    /* Full stage width + side bleed so wide bends are not clipped */
+    left: -8%;
+    right: -8%;
+    top: 2%;
+    bottom: 10%;
+    z-index: 0;
+    width: auto;
+    height: auto;
+    pointer-events: none;
+    overflow: visible;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .way__mobile-road-bed {
+    fill: none;
+    stroke: #ddd1b5;
+    stroke-width: 7.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .way__mobile-road-dash {
+    fill: none;
+    stroke: rgba(253, 247, 238, 0.9);
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 6 9;
   }
 
   .way__card {
@@ -993,41 +1044,33 @@ html.is-native-scroll .page__bg {
 
   .way__mobile-leg {
     position: relative;
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: min(100%, 520px);
-    /* Spacer + car parking between text and next stop */
+    /* Fixed spacer between cards — cars stay centered here forever */
     height: clamp(120px, 34vw, 160px);
     margin: 8px auto 14px;
-    z-index: 1;
+    z-index: 2;
     pointer-events: none;
     overflow: visible;
     isolation: isolate;
   }
 
-  /*
-   * Line wrap is pinned in JS from previous art → next art (relative to leg).
-   * Soft masks (also JS) hide the stroke through text plates.
-   * Lines removed from mobile — wrap kept hidden if reintroduced later.
-   */
-  .way__stage--mobile-paths .way__mobile-line-wrap {
-    display: none !important;
-  }
-
-  .way__mobile-line-wrap {
-    display: none !important;
-  }
-
-  /* Generated stroke (unused while lines are off) */
+  /* Legacy per-leg roads removed — one full road on the stage */
+  .way__mobile-leg .way__mobile-road,
+  .way__stage--mobile-paths .way__mobile-line-wrap,
+  .way__mobile-line-wrap,
   .way__mobile-line {
     display: none !important;
   }
 
   .way__mobile-car {
-    position: absolute;
+    position: relative;
+    left: auto;
+    top: auto;
     z-index: 10;
-    left: 50%;
-    /* left/top are set in JS to the point where the stroke crosses */
-    top: 42%;
+    flex: 0 0 auto;
     pointer-events: none;
     filter: none;
     background: transparent;
@@ -1043,27 +1086,25 @@ html.is-native-scroll .page__bg {
     background: transparent;
   }
 
-  /* Solo car — only size / rotation; road contact point comes from JS.
-     Origin sits on the wheel line so the stroke runs beneath the tyres. */
+  /* Centered on the track; origin near the wheels so the car sits on the road */
   .way__mobile-car--solo {
     width: clamp(94px, 28.8vw, 200px);
-    transform-origin: 50% 92%;
-    transform: translate(-50%, -92%) rotate(-27.27deg);
+    transform-origin: 50% 82%;
+    transform: rotate(-19deg);
   }
 
-  /* Convoy — lead car's wheels sit lower in the frame than the solo car's */
   .way__mobile-car--convoy {
     width: clamp(150px, 48vw, 280px);
-    transform-origin: 50% 87%;
-    transform: translate(-50%, -87%) rotate(6deg);
+    transform-origin: 50% 78%;
+    transform: rotate(-2.5deg);
   }
 
   .way__mobile-leg--church .way__mobile-car--solo {
-    animation: way-car-drift 5.5s ease-in-out infinite;
+    animation: way-car-drift-center 5.5s ease-in-out infinite;
   }
 
   .way__mobile-leg--restaurant .way__mobile-car--convoy {
-    animation: way-car-drift-alt 6.5s ease-in-out infinite;
+    animation: way-car-drift-center-alt 6.5s ease-in-out infinite;
   }
 }
 
@@ -1107,6 +1148,27 @@ html.is-native-scroll .page__bg {
   }
 }
 
+/* Mobile: stay flex-centered on the track; soft float around that point */
+@keyframes way-car-drift-center {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(-19deg);
+  }
+  50% {
+    transform: translate3d(10px, -5px, 0) rotate(-16deg);
+  }
+}
+
+@keyframes way-car-drift-center-alt {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(-2.5deg);
+  }
+  50% {
+    transform: translate3d(-10px, -5px, 0) rotate(1deg);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .way__car--solo img,
   .way__car--convoy,
@@ -1121,6 +1183,195 @@ html.is-native-scroll .page__bg {
   .way__mobile-leg--restaurant .way__mobile-car--convoy {
     animation: none;
   }
+}
+
+/* —— Standalone road editor page —— */
+html.road-editor,
+html.road-editor body {
+  margin: 0;
+  min-height: 100%;
+  background:
+    radial-gradient(120% 80% at 50% 0%, #fff8ec 0%, transparent 55%),
+    linear-gradient(180deg, #f7efe3 0%, #efe4d2 100%);
+  overscroll-behavior: none;
+}
+
+.road-editor-body {
+  padding: 0 0 48px;
+  touch-action: pan-y;
+}
+
+.road-editor-bar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px calc(10px + env(safe-area-inset-top, 0px));
+  padding-top: calc(10px + env(safe-area-inset-top, 0px));
+  background: rgba(253, 247, 238, 0.94);
+  border-bottom: 1px solid rgba(33, 30, 28, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-family: var(--font-display, "Jomolhari", serif);
+  color: #211e1c;
+}
+
+.road-editor-bar__copy {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.road-editor-bar__copy strong {
+  font-size: 15px;
+  font-weight: 400;
+}
+
+.road-editor-bar__copy [data-road-status] {
+  font-size: 12px;
+  color: #5c554c;
+}
+
+.road-editor-bar__copy [data-road-status][data-state="busy"] {
+  color: #8a6a2a;
+}
+
+.road-editor-bar__copy [data-road-status][data-state="error"] {
+  color: #9b2f2f;
+}
+
+.road-editor-bar__copy [data-road-status][data-state="ok"] {
+  color: #3d6b45;
+}
+
+.road-editor-bar__tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.road-editor-bar__tools button,
+.road-editor-bar__link {
+  border: 1px solid rgba(33, 30, 28, 0.16);
+  border-radius: 8px;
+  background: #fff;
+  color: inherit;
+  padding: 7px 10px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.road-editor-bar__link {
+  background: #211e1c;
+  color: #fdf7ee;
+  border-color: #211e1c;
+}
+
+.road-editor-width {
+  margin: 0;
+  min-width: 140px;
+}
+
+.road-editor-main {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 8px 16px 40px;
+}
+
+html.road-editor .way {
+  padding-top: 12px;
+}
+
+html.road-editor .way__title {
+  margin-bottom: 18px;
+}
+
+html.road-editor .way-edit-handle {
+  width: 28px;
+  height: 28px;
+  touch-action: none;
+}
+
+html.road-editor .way-edit-handle--line {
+  width: 20px;
+  height: 20px;
+}
+
+/* Force mobile road layout on editor at any desktop width */
+html.road-editor .way__mobile-road--full {
+  display: block;
+  position: absolute;
+  left: -8%;
+  right: -8%;
+  z-index: 0;
+  width: auto;
+  pointer-events: none;
+  overflow: visible;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+html.road-editor .way__mobile-road-bed {
+  fill: none;
+  stroke: #ddd1b5;
+  stroke-width: 7.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+html.road-editor .way__mobile-road-dash {
+  fill: none;
+  stroke: rgba(253, 247, 238, 0.9);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 6 9;
+}
+
+html.road-editor .way__mobile-leg {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: min(100%, 520px);
+  height: clamp(120px, 34vw, 160px);
+  margin: 8px auto 14px;
+  z-index: 2;
+  pointer-events: none;
+  overflow: visible;
+}
+
+html.road-editor .way__mobile-car {
+  position: relative;
+  z-index: 10;
+  pointer-events: none;
+}
+
+html.road-editor .way__mobile-car img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+html.road-editor .way__mobile-car--solo {
+  width: clamp(94px, 28.8vw, 200px);
+  transform-origin: 50% 82%;
+  transform: rotate(-19deg);
+  animation: way-car-drift-center 5.5s ease-in-out infinite;
+}
+
+html.road-editor .way__mobile-car--convoy {
+  width: clamp(150px, 48vw, 280px);
+  transform-origin: 50% 78%;
+  transform: rotate(-2.5deg);
+  animation: way-car-drift-center-alt 6.5s ease-in-out infinite;
 }
 
 /* —— Way line editor (?wayedit=1) —— */
@@ -1193,7 +1444,9 @@ html.way-edit .way__card--villa .way__card-copy {
 
 html.way-edit .way__mobile-leg {
   position: relative;
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: min(100%, 520px);
   height: clamp(120px, 34vw, 160px);
   margin: 8px auto 14px;
@@ -1208,10 +1461,45 @@ html.way-edit .way__stage--mobile-paths .way__mobile-line-wrap {
   pointer-events: none;
 }
 
-html.way-edit .way-edit-overlay {
-  z-index: 40;
+.way-edit-overlay--road {
+  position: absolute;
+  z-index: 50;
   pointer-events: none;
   overflow: visible;
+}
+
+.way-edit-overlay--road .way-edit-handles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.way-edit-guides {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.way-edit-guides line {
+  stroke: rgba(217, 120, 76, 0.55);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+  vector-effect: non-scaling-stroke;
+}
+
+html.way-edit .way__mobile-road--full {
+  display: block !important;
+  z-index: 1;
+  pointer-events: none;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+html.way-edit .way__mobile-leg {
+  z-index: 3;
 }
 
 .way-edit-panel {
@@ -1860,7 +2148,7 @@ body.lightbox-open {
 @media (max-width: 900px) {
   .hero {
     height: auto;
-    min-height: 100svh;
+    min-height: var(--app-height, 100svh);
     padding: clamp(24px, 5vh, 48px) max(20px, env(safe-area-inset-left))
       clamp(24px, 5vh, 48px) max(20px, env(safe-area-inset-right));
     overflow: visible;
@@ -1942,7 +2230,7 @@ body.lightbox-open {
 
   .invite {
     height: auto;
-    min-height: 100svh;
+    min-height: var(--app-height, 100svh);
     gap: clamp(12px, 2.8vh, 20px);
     padding: clamp(16px, 3vh, 32px) max(16px, env(safe-area-inset-left))
       clamp(16px, 3vh, 32px) max(16px, env(safe-area-inset-right));
@@ -2071,7 +2359,7 @@ body.lightbox-open {
 
   .countdown {
     height: auto;
-    min-height: 100svh;
+    min-height: var(--app-height, 100svh);
     padding: clamp(40px, 6vh, 72px) max(16px, env(safe-area-inset-left))
       clamp(48px, 7vh, 88px) max(16px, env(safe-area-inset-right));
   }
