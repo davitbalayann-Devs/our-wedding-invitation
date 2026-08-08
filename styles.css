@@ -3042,7 +3042,7 @@ html[lang="ru"] .hero__script.blur-text {
 }
 }
 
-/* Armenian hero: Mshtakan, two-line uppercase (Figma 51:5) */
+/* Armenian hero: Mshtakan, one-line title */
 html[lang="hy"] {
   --font-display: "Mshtakan", "Noto Serif Armenian", "Jomolhari", serif;
   --font-serif: "Mshtakan", "Noto Serif Armenian", "Ponomar", serif;
@@ -3066,51 +3066,37 @@ html[lang="hy"] .invite-gate__copy {
 
 html[lang="hy"] .hero__headline {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   flex-wrap: nowrap;
   align-items: center;
   justify-content: center;
   gap: 0;
-  width: min(100%, 94vw);
+  width: min(100%, 96vw);
   text-align: center;
 }
 
-html[lang="hy"] .hero__eyebrow,
 html[lang="hy"] .hero__script {
-  font-family: var(--font-mshtakan);
-  font-weight: 400;
-  font-style: normal;
-  text-transform: uppercase;
-  letter-spacing: -0.04em;
-  text-align: center;
-  max-width: 100%;
-  margin: 0;
-  padding: 0;
+  display: none !important;
 }
 
 html[lang="hy"] .hero__eyebrow {
+  font-family: var(--font-mshtakan);
+  font-weight: 400;
+  font-style: normal;
+  text-transform: none;
+  letter-spacing: -0.02em;
+  text-align: center;
   color: var(--color-ink);
-  font-size: clamp(28px, 5.2vw, 64px);
-  line-height: 0.75;
-  white-space: normal;
-}
-
-html[lang="hy"] .hero__script {
-  color: var(--color-ink-strong);
-  /* Keep “ԱՄՈՒՍՆԱՆՈՒՄ ԵՆ!” on one line at any width */
-  font-size: min(81px, calc((100vw - 40px) / 9.6));
-  line-height: 1.05;
+  font-size: clamp(28px, 5.8vw, 64px);
+  line-height: 1.1;
   white-space: nowrap;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  margin-bottom: 0;
 }
 
 html[lang="hy"] .hero__eyebrow.blur-text {
-  display: block;
-  width: 100%;
-  justify-content: center;
-  white-space: normal;
-}
-
-html[lang="hy"] .hero__script.blur-text {
   display: flex;
   width: max-content;
   max-width: 100%;
@@ -3165,11 +3151,8 @@ html[lang="hy"] .invite-gate__title {
 
 @media (max-width: 900px) {
   html[lang="hy"] .hero__eyebrow {
-    font-size: clamp(26px, 8.2vw, 40px);
-  }
-
-  html[lang="hy"] .hero__script {
-    font-size: min(52px, calc((100vw - 32px) / 9.4));
+    font-size: min(40px, calc((100vw - 32px) / 11.5));
+    letter-spacing: -0.025em;
   }
 
   html[lang="hy"] .invite__message,
