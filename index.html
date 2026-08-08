@@ -15,17 +15,26 @@
       (function () {
         var h = window.innerHeight;
         if (h) document.documentElement.style.setProperty("--app-height", h + "px");
+        /* Block intro scroll before music.js runs. */
+        document.documentElement.classList.add("is-gated");
+        /* Short invite: hide villa stop (?no-villa=1). */
+        try {
+          var params = new URLSearchParams(window.location.search);
+          if (params.has("no-villa")) {
+            document.documentElement.classList.add("no-villa");
+          }
+        } catch (e) {}
       })();
     </script>
     <title>Davit & Monica — Getting Married</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Birthstone+Bounce:wght@400;500&family=Jomolhari&family=Ponomar&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Birthstone+Bounce:wght@400;500&family=Jomolhari&family=Noto+Sans+Armenian:wght@400;500&family=Noto+Serif+Armenian:wght@400;500&family=Ponomar&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css?v=20260731d" />
-    <script src="i18n.js?v=20260729d"></script>
+    <link rel="stylesheet" href="styles.css?v=20260808n" />
+    <script src="i18n.js?v=20260808j"></script>
   </head>
   <body>
     <div class="safari-transparent-nav" aria-hidden="true"></div>
@@ -70,7 +79,7 @@
               </div>
             </figure>
 
-            <p class="hero__names" data-scroll-item data-speed="1.3" data-blur>
+            <p class="hero__names" data-scroll-item data-speed="1.3" data-blur data-i18n="names.couple">
               Davit &amp; Monica
             </p>
           </div>
@@ -93,7 +102,7 @@
                 <span>2026</span>
               </div>
             </div>
-            <p class="invite__names" data-blur>Davit &amp; Monica</p>
+            <p class="invite__names" data-blur data-i18n="names.couple">Davit &amp; Monica</p>
           </div>
 
           <figure class="invite__art" data-scroll-item data-speed="1" data-reveal>
@@ -111,7 +120,8 @@
             data-scroll-item
             data-speed="1"
             data-blur
-            data-i18n="invite.message"
+            data-blur-wrap
+            data-i18n-html="invite.message"
           >
             Invite you to the celebration of their marriage
           </p>
@@ -423,13 +433,45 @@
       </figure>
     </div>
 
-    <div class="invite-gate" id="invite-gate" role="dialog" aria-modal="true" aria-labelledby="invite-gate-title">
+    <div class="lang-gate" id="lang-gate" role="dialog" aria-modal="true" aria-labelledby="lang-gate-title">
+      <div class="lang-gate__panel">
+        <p class="lang-gate__eyebrow" data-i18n="names.couple">Davit & Monica</p>
+        <h1 class="lang-gate__title" id="lang-gate-title">
+          <span class="lang-gate__title-line">Ընտրեք լեզուն</span>
+          <span class="lang-gate__title-line">Выберите язык</span>
+          <span class="lang-gate__title-line">Choose your language</span>
+        </h1>
+        <div class="lang-gate__choices">
+          <button type="button" class="lang-gate__choice" data-lang="hy">
+            <span class="lang-gate__choice-native">Հայերեն</span>
+            <span class="lang-gate__choice-meta">Armenian</span>
+          </button>
+          <button type="button" class="lang-gate__choice" data-lang="ru">
+            <span class="lang-gate__choice-native">Русский</span>
+            <span class="lang-gate__choice-meta">Russian</span>
+          </button>
+          <button type="button" class="lang-gate__choice" data-lang="en">
+            <span class="lang-gate__choice-native">English</span>
+            <span class="lang-gate__choice-meta">English</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="invite-gate" id="invite-gate" hidden role="dialog" aria-modal="true" aria-labelledby="invite-gate-title">
       <button type="button" class="invite-gate__hit" id="invite-gate-open">
-        <span class="invite-gate__eyebrow">Davit & Monica</span>
-        <span class="invite-gate__title" id="invite-gate-title" data-i18n="gate.title"
-          >Open invitation</span
-        >
-        <span class="invite-gate__hint" data-i18n="gate.hint">Tap to enter</span>
+        <span class="invite-gate__copy">
+          <span class="invite-gate__eyebrow" data-i18n="names.couple">Davit & Monica</span>
+          <span class="invite-gate__title" id="invite-gate-title" data-i18n="gate.title"
+            >Open invitation</span
+          >
+          <span class="invite-gate__hint" data-i18n="gate.hint">Tap anywhere to open</span>
+        </span>
+        <span class="invite-gate__cue" aria-hidden="true">
+          <span class="invite-gate__cue-ring"></span>
+          <span class="invite-gate__cue-ring invite-gate__cue-ring--delay"></span>
+          <span class="invite-gate__cue-core"></span>
+        </span>
       </button>
     </div>
 
@@ -482,11 +524,12 @@
     <script src="scroll.js?v=20260730m"></script>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/SplitText.min.js"></script>
-    <script src="blur-text.js?v=20260729e"></script>
+    <script src="blur-text.js?v=20260808i"></script>
+    <script src="fit-invite.js?v=20260808j"></script>
     <script src="styling.js?v=20260730d"></script>
     <script src="countdown.js?v=20260728e"></script>
-    <script src="way-mobile.js?v=20260731d"></script>
+    <script src="way-mobile.js?v=20260808p"></script>
     <script src="way-edit.js?v=20260731d"></script>
-    <script src="music.js?v=20260729b"></script>
+    <script src="music.js?v=20260808c"></script>
   </body>
 </html>

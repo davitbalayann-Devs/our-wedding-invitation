@@ -8,18 +8,28 @@
     />
     <meta name="theme-color" content="#f6efe2" />
     <title>Road editor — Wedding timeline</title>
+    <script>
+      (function () {
+        try {
+          if (new URLSearchParams(location.search).has("no-villa")) {
+            document.documentElement.classList.add("no-villa");
+            document.title = "Road editor (no-villa)";
+          }
+        } catch (e) {}
+      })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Birthstone+Bounce:wght@400;500&family=Jomolhari&family=Ponomar&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css?v=20260731d" />
+    <link rel="stylesheet" href="styles.css?v=20260808m" />
   </head>
   <body class="road-editor-body">
     <header class="road-editor-bar">
       <div class="road-editor-bar__copy">
-        <strong>Редактор дороги</strong>
+        <strong data-road-editor-title>Редактор дороги</strong>
         <span data-road-status data-state="ok">Loading…</span>
       </div>
       <div class="road-editor-bar__tools">
@@ -30,7 +40,7 @@
         </label>
         <button type="button" data-edit="add">+ Segment</button>
         <button type="button" data-edit="reload">Reload</button>
-        <a class="road-editor-bar__link" href="./">Открыть сайт</a>
+        <a class="road-editor-bar__link" data-road-preview href="./">Открыть сайт</a>
       </div>
     </header>
 
@@ -115,7 +125,7 @@
       </section>
     </main>
 
-    <script src="way-mobile.js?v=20260731d"></script>
-    <script src="road-editor.js?v=20260731d"></script>
+    <script src="way-mobile.js?v=20260808p"></script>
+    <script src="road-editor.js?v=20260808q"></script>
   </body>
 </html>

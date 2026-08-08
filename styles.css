@@ -21,6 +21,38 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "Mshtakan";
+  src: url("assets/fonts/Mshtakan.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Mshtakan";
+  src: url("assets/fonts/MshtakanOblique.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Mshtakan";
+  src: url("assets/fonts/MshtakanBold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Mshtakan";
+  src: url("assets/fonts/MshtakanBoldOblique.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
 *,
 *::before,
 *::after {
@@ -521,9 +553,11 @@ html.is-native-scroll .page__bg {
 }
 
 .invite__message.blur-text {
+  display: block;
   flex-wrap: nowrap;
   white-space: nowrap;
   max-width: 100%;
+  text-align: center;
 }
 
 /* —— Way (Figma 27:264 — 1440×1000) —— */
@@ -1899,6 +1933,11 @@ html.way-edit .way__mobile-leg {
   word-wrap: break-word;
 }
 
+/* Title block above the photo carousel */
+.styling > .styling__copy {
+  margin-bottom: 28px;
+}
+
 .styling__copy h2 {
   color: var(--color-ink);
   font-size: 28px;
@@ -2225,7 +2264,7 @@ body.lightbox-open {
   }
 
   .hero__names {
-    font-size: clamp(26px, 7.5vw, 40px);
+    font-size: clamp(32px, 7.5vw, 40px);
   }
 
   .invite {
@@ -2271,8 +2310,10 @@ body.lightbox-open {
   }
 
   .invite__message.blur-text {
+    display: block;
     flex-wrap: nowrap;
     white-space: nowrap;
+    text-align: center;
   }
 
   .invite__art {
@@ -2330,6 +2371,10 @@ body.lightbox-open {
     padding: 0 max(16px, env(safe-area-inset-left)) 0
       max(16px, env(safe-area-inset-right));
     max-width: 100%;
+  }
+
+  .styling > .styling__copy {
+    margin-bottom: 22px;
   }
 
   .styling__copy h2 {
@@ -2487,8 +2532,181 @@ body.lightbox-open {
 }
 
 /* Opening gate — one real tap unlocks music (autoplay is blocked by browsers) */
+/* —— Language picker (before invite gate) —— */
+.lang-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: grid;
+  place-items: center;
+  padding: max(24px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right))
+    max(24px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left));
+  background: transparent;
+  opacity: 1;
+  transform: scale(1);
+  filter: blur(0);
+  transition:
+    opacity 0.45s ease,
+    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.55s ease,
+    visibility 0.55s ease;
+  touch-action: manipulation;
+  overscroll-behavior: none;
+}
+
+.lang-gate::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 38%, rgba(253, 247, 238, 0.28), transparent 70%),
+    var(--color-bg);
+  pointer-events: none;
+}
+
+.lang-gate[hidden] {
+  display: none;
+}
+
+.lang-gate.is-leaving {
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(1.08);
+  filter: blur(10px);
+  pointer-events: none;
+}
+
+.lang-gate__panel {
+  width: min(100%, 420px);
+  display: grid;
+  gap: 28px;
+  justify-items: center;
+  text-align: center;
+}
+
+.lang-gate__eyebrow {
+  font-family: var(--font-display);
+  font-size: clamp(13px, 3.2vw, 16px);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-link);
+}
+
+.lang-gate__title {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  font-weight: 400;
+}
+
+.lang-gate__title-line {
+  font-family: var(--font-display);
+  font-size: clamp(22px, 5.5vw, 30px);
+  line-height: 1.2;
+  color: var(--color-ink);
+}
+
+.lang-gate__title-line:nth-child(1) {
+  font-family: "Noto Serif Armenian", var(--font-display), serif;
+}
+
+.lang-gate__title-line:nth-child(2),
+.lang-gate__title-line:nth-child(3) {
+  font-size: clamp(15px, 3.6vw, 18px);
+  color: var(--color-link);
+}
+
+.lang-gate__choices {
+  width: 100%;
+  display: grid;
+  gap: 12px;
+}
+
+.lang-gate__choice {
+  appearance: none;
+  width: 100%;
+  border: 1px solid rgba(33, 30, 28, 0.14);
+  border-radius: 14px;
+  background: rgba(255, 252, 246, 0.84);
+  color: var(--color-ink);
+  padding: 16px 18px;
+  display: grid;
+  gap: 4px;
+  justify-items: start;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.lang-gate__choice:hover,
+.lang-gate__choice:focus-visible {
+  outline: none;
+  border-color: rgba(33, 30, 28, 0.34);
+  background: #fffdf8;
+  box-shadow: 0 10px 24px rgba(33, 30, 28, 0.08);
+  transform: translateY(-1px);
+}
+
+.lang-gate__choice.is-active {
+  border-color: rgba(33, 30, 28, 0.42);
+  box-shadow: inset 0 0 0 1px rgba(33, 30, 28, 0.12);
+}
+
+.lang-gate__choice:active {
+  transform: translateY(0);
+}
+
+.lang-gate__choice-native {
+  font-family: var(--font-display);
+  font-size: clamp(18px, 4.4vw, 22px);
+  line-height: 1.2;
+}
+
+.lang-gate__choice[data-lang="hy"] .lang-gate__choice-native {
+  font-family: "Noto Serif Armenian", var(--font-display), serif;
+}
+
+.lang-gate__choice-meta {
+  font-family: var(--font-display);
+  font-size: 13px;
+  color: var(--color-link);
+  letter-spacing: 0.03em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lang-gate {
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+  }
+
+  .lang-gate.is-leaving {
+    transform: none;
+    filter: none;
+  }
+}
+
+/* Lock page scroll while the intro gate is open (beats native-scroll rules). */
+html.is-gated,
+html.is-gated body,
 body.is-gated {
-  overflow: hidden;
+  overflow: hidden !important;
+  overscroll-behavior: none !important;
+  touch-action: none;
+  height: 100% !important;
+  min-height: 100% !important;
+}
+
+html.is-gated body,
+body.is-gated {
+  position: fixed;
+  inset: 0;
+  width: 100%;
 }
 
 .invite-gate {
@@ -2510,6 +2728,8 @@ body.is-gated {
     opacity 0.65s ease,
     visibility 0.75s ease;
   will-change: transform, filter, opacity;
+  touch-action: manipulation;
+  overscroll-behavior: none;
 }
 
 .invite-gate::before {
@@ -2535,7 +2755,10 @@ body.is-gated {
   pointer-events: none;
 }
 
-.invite-gate.is-leaving .invite-gate__hit {
+.invite-gate.is-leaving .invite-gate__copy,
+.invite-gate.is-leaving .invite-gate__cue,
+.invite-gate.is-leaving .invite-gate__cue-ring,
+.invite-gate.is-leaving .invite-gate__cue-core {
   animation: none;
 }
 
@@ -2549,7 +2772,7 @@ body.is-gated {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 22px;
   position: absolute;
   inset: 0;
   width: 100%;
@@ -2557,6 +2780,15 @@ body.is-gated {
   padding: 28px 12px;
   text-align: center;
   font: inherit;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.invite-gate__copy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
   animation: invite-gate-breathe 2.8s ease-in-out infinite;
 }
 
@@ -2582,6 +2814,41 @@ body.is-gated {
   font-size: 14px;
   color: var(--color-link);
   letter-spacing: 0.04em;
+  animation: invite-gate-hint-fade 1.8s ease-in-out infinite;
+}
+
+.invite-gate__cue {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  margin-top: 4px;
+  display: grid;
+  place-items: center;
+  color: var(--color-ink);
+  pointer-events: none;
+}
+
+.invite-gate__cue-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1.75px solid rgba(33, 30, 28, 0.3);
+  animation: invite-gate-cue-pulse 1.9s ease-out infinite;
+}
+
+.invite-gate__cue-ring--delay {
+  animation-delay: 0.55s;
+}
+
+.invite-gate__cue-core {
+  position: relative;
+  z-index: 1;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(33, 30, 28, 0.72);
+  box-shadow: 0 0 0 8px rgba(33, 30, 28, 0.08);
+  animation: invite-gate-cue-tap 1.9s ease-in-out infinite;
 }
 
 @keyframes invite-gate-breathe {
@@ -2596,8 +2863,52 @@ body.is-gated {
   }
 }
 
+@keyframes invite-gate-hint-fade {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes invite-gate-cue-pulse {
+  0% {
+    transform: scale(0.42);
+    opacity: 0.75;
+  }
+  70% {
+    transform: scale(1);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes invite-gate-cue-tap {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+  35% {
+    transform: scale(0.78);
+    opacity: 1;
+  }
+  55% {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .invite-gate__hit {
+  .invite-gate__copy,
+  .invite-gate__hint,
+  .invite-gate__cue-ring,
+  .invite-gate__cue-core {
     animation: none;
   }
 
@@ -2724,10 +3035,162 @@ html[lang="ru"] .hero__script.blur-text {
     font-size: clamp(26px, 8.4vw, 40px);
   }
 
-  html[lang="ru"] .hero__eyebrow.blur-text,
-  html[lang="ru"] .hero__script.blur-text {
-    flex-wrap: nowrap;
-    white-space: nowrap;
+html[lang="ru"] .hero__eyebrow.blur-text,
+html[lang="ru"] .hero__script.blur-text {
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+}
+
+/* Armenian hero: Mshtakan, two-line uppercase (Figma 51:5) */
+html[lang="hy"] {
+  --font-display: "Mshtakan", "Noto Serif Armenian", "Jomolhari", serif;
+  --font-serif: "Mshtakan", "Noto Serif Armenian", "Ponomar", serif;
+  --font-script: "Mshtakan", "Noto Serif Armenian", cursive;
+  --font-mshtakan: "Mshtakan", "Noto Serif Armenian", serif;
+}
+
+html[lang="hy"] body {
+  font-family: "Noto Sans Armenian", var(--font-display), sans-serif;
+}
+
+html[lang="hy"] .hero__names,
+html[lang="hy"] .invite__names,
+html[lang="hy"] .way__title,
+html[lang="hy"] .way__card-copy,
+html[lang="hy"] .countdown__headline h2,
+html[lang="hy"] .styling__copy,
+html[lang="hy"] .invite-gate__copy {
+  text-transform: none;
+}
+
+html[lang="hy"] .hero__headline {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  width: min(100%, 94vw);
+  text-align: center;
+}
+
+html[lang="hy"] .hero__eyebrow,
+html[lang="hy"] .hero__script {
+  font-family: var(--font-mshtakan);
+  font-weight: 400;
+  font-style: normal;
+  text-transform: uppercase;
+  letter-spacing: -0.04em;
+  text-align: center;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+html[lang="hy"] .hero__eyebrow {
+  color: var(--color-ink);
+  font-size: clamp(28px, 5.2vw, 64px);
+  line-height: 0.75;
+  white-space: normal;
+}
+
+html[lang="hy"] .hero__script {
+  color: var(--color-ink-strong);
+  /* Keep “ԱՄՈՒՍՆԱՆՈՒՄ ԵՆ!” on one line at any width */
+  font-size: min(81px, calc((100vw - 40px) / 9.6));
+  line-height: 1.05;
+  white-space: nowrap;
+}
+
+html[lang="hy"] .hero__eyebrow.blur-text {
+  display: block;
+  width: 100%;
+  justify-content: center;
+  white-space: normal;
+}
+
+html[lang="hy"] .hero__script.blur-text {
+  display: flex;
+  width: max-content;
+  max-width: 100%;
+  justify-content: center;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
+html[lang="hy"] .invite__message {
+  font-family: var(--font-display);
+  text-transform: none;
+  white-space: nowrap;
+  display: block;
+  text-align: center;
+  width: 100%;
+  max-width: 100%;
+  font-size: min(22px, 4.6vw);
+  letter-spacing: -0.015em;
+  padding-inline: 0;
+  margin-inline: 0;
+  box-sizing: border-box;
+  overflow: visible;
+  line-height: 1.25;
+}
+
+html[lang="hy"] .invite__message.blur-text {
+  display: block;
+  white-space: nowrap;
+  width: 100%;
+  max-width: 100%;
+  text-align: center;
+}
+
+html[lang="hy"] .invite__message .blur-segment + .blur-segment {
+  margin-inline-start: 0.25em;
+}
+
+html[lang="hy"] .invite__message-line2 {
+  display: inline;
+}
+
+html[lang="hy"] .invite__message-line2 .blur-segment + .blur-segment {
+  margin-inline-start: 0.25em;
+}
+
+html[lang="hy"] .invite-gate__title {
+  font-family: var(--font-mshtakan);
+  white-space: normal;
+  font-size: clamp(30px, 8vw, 52px);
+  text-transform: none;
+}
+
+@media (max-width: 900px) {
+  html[lang="hy"] .hero__eyebrow {
+    font-size: clamp(26px, 8.2vw, 40px);
+  }
+
+  html[lang="hy"] .hero__script {
+    font-size: min(52px, calc((100vw - 32px) / 9.4));
+  }
+
+  html[lang="hy"] .invite__message,
+  html[lang="hy"] .invite__message.blur-text {
+    white-space: normal;
+    overflow: visible;
+    /* A bit larger than the old single-line mobile size; JS fine-tunes */
+    font-size: clamp(15px, 4.6vw, 22px);
+    line-height: 1.3;
+  }
+
+  html[lang="hy"] .invite__message-line2 {
+    display: block;
+    margin-top: 0.12em;
   }
 }
+
+/* —— Short invite (?no-villa=1): hide villa stop on mobile + desktop —— */
+html.no-villa .way__card--villa {
+  display: none !important;
+}
+
+/* Keep cars at their original route positions; only the villa card is removed. */
 

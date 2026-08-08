@@ -1,7 +1,9 @@
 (() => {
+  const STORAGE_KEY = "wedding-invite-locale";
   const dictionaries = {
     en: {
       "meta.title": "Davit & Monica — Getting Married",
+      "names.couple": "Davit & Monica",
       "hero.section": "Wedding announcement",
       "hero.eyebrow": "These kids Are",
       "hero.script": "getting married!",
@@ -44,13 +46,19 @@
       "countdown.seconds": "Seconds",
       "lightbox.close": "Close photo",
       "gate.title": "Open invitation",
-      "gate.hint": "Tap to enter",
+      "gate.hint": "Tap anywhere to open",
       "music.title": "Music",
       "music.play": "Play music",
       "music.mute": "Mute music",
+      "lang.eyebrow": "Davit & Monica",
+      "lang.title": "Choose your language",
+      "lang.hy": "Armenian",
+      "lang.ru": "Russian",
+      "lang.en": "English",
     },
     ru: {
       "meta.title": "Давит и Моника — Женятся",
+      "names.couple": "Давит и Моника",
       "hero.section": "Объявление о свадьбе",
       "hero.eyebrow": "Эти детки",
       "hero.script": "женятся!",
@@ -93,32 +101,94 @@
       "countdown.seconds": "Секунды",
       "lightbox.close": "Закрыть фото",
       "gate.title": "Открыть приглашение",
-      "gate.hint": "Нажмите, чтобы войти",
+      "gate.hint": "Нажмите на экран",
       "music.title": "Музыка",
       "music.play": "Включить музыку",
       "music.mute": "Выключить музыку",
+      "lang.eyebrow": "Давит и Моника",
+      "lang.title": "Выберите язык",
+      "lang.hy": "Армянский",
+      "lang.ru": "Русский",
+      "lang.en": "Английский",
+    },
+    hy: {
+      "meta.title": "Դավիթ և Մոնիկա — Ամուսնանում են",
+      "names.couple": "Դավիթ և Մոնիկա",
+      "hero.section": "Հարսանեկան հայտարարություն",
+      "hero.eyebrow": "Այս երեխաները",
+      "hero.script": "ամուսնանում են!",
+      "hero.photoAlt": "Դավիթը և Մոնիկան մանկության տարիներին",
+      "invite.section": "Պահպանեք ամսաթիվը",
+      "invite.label": "Պահպանեք ամսաթիվը",
+      "invite.dateLabel": "16 օգոստոսի 2026",
+      "invite.artAlt": "Հարսանեկան տոնակատարության նկարազարդում",
+      "invite.message": "Հրավիրում են ձեզ իրենց <span class=\"invite__message-line2\">ամուսնության տոնակատարությանը</span>",
+      "way.section": "Հարսանեկան օրվա ծրագիր",
+      "way.title": "Հարսանեկան ծրագիր",
+      "way.villaTitle": "Վիլլա Այգեձոր | 11:00",
+      "way.villaAlt": "Վիլլա Այգեձորի նկարազարդում",
+      "way.locationLabel": "Հասցե՝",
+      "way.villaAddress": "Այգեձորի փողոց 23, Երևան",
+      "way.churchTitle": "Սուրբ Աննա եկեղեցի | 15:00",
+      "way.churchAlt": "Սուրբ Աննա եկեղեցու նկարազարդում",
+      "way.churchAddress": "Աբովյանի փողոց 15, Երևան",
+      "way.restaurantTitle": "Հրաշք Այգի ռեստորան | 17:30",
+      "way.restaurantAlt": "Հրաշք Այգի ռեստորանի նկարազարդում",
+      "way.restaurantAddress": "Դիտակ գյուղ, Գևորգյանի փողոց 1",
+      "styling.section": "Ռեստորանի ոճ",
+      "styling.title": "Մտածո՞ւմ եք՝ ինչ հագնել երեկույթին",
+      "styling.body":
+        "Խիստ դրես-կոդ չկա՝ հագեք այն, ինչով ձեզ լավ եք զգում։ Թող մեր վայրի այս լուսանկարները ոգեշնչեն ձեր կատարյալ տեսքը։",
+      "styling.photo1": "Բացել ռեստորանի լուսանկար 1",
+      "styling.photo2": "Բացել ռեստորանի լուսանկար 2",
+      "styling.photo3": "Բացել ռեստորանի լուսանկար 3",
+      "styling.photo4": "Բացել ռեստորանի լուսանկար 4",
+      "styling.alt1": "Հրաշք Այգի ռեստորանի ինտերիեր՝ հյուսած լուսատուներով",
+      "styling.alt2": "Սեղաններ և սպիտակ աթոռներ Հրաշք Այգի-ում",
+      "styling.alt3": "Արմավենիներ և մեղմ լույս ռեստորանում",
+      "styling.alt4": "Երկար ճաշասրահ՝ ֆակտուրային պատերով",
+      "countdown.section": "Հետհաշվարկ մինչև հարսանիք",
+      "countdown.title": "Հաշվում ենք մինչև մեր մեծ օրը",
+      "countdown.subtitle": "Կտեսնվենք...",
+      "countdown.days": "Օր",
+      "countdown.hours": "Ժամ",
+      "countdown.minutes": "Րոպե",
+      "countdown.seconds": "Վայրկյան",
+      "lightbox.close": "Փակել լուսանկարը",
+      "gate.title": "Բացել հրավերը",
+      "gate.hint": "Սեղմեք էկրանին",
+      "music.title": "Երաժշտություն",
+      "music.play": "Միացնել երաժշտությունը",
+      "music.mute": "Անջատել երաժշտությունը",
+      "lang.eyebrow": "Դավիթ և Մոնիկա",
+      "lang.title": "Ընտրեք լեզուն",
+      "lang.hy": "Հայերեն",
+      "lang.ru": "Ռուսերեն",
+      "lang.en": "Անգլերեն",
     },
   };
 
-  function detectLocale() {
-    const primary = String(
-      (navigator.languages && navigator.languages[0]) ||
-        navigator.language ||
-        navigator.userLanguage ||
-        "en"
-    )
+  let locale = "en";
+  let localeChosen = false;
+
+  function normalizeLocale(value) {
+    const raw = String(value || "")
       .trim()
       .toLowerCase();
-
-    // Russian only when the device primary language is Russian.
-    if (primary === "ru" || primary.startsWith("ru-")) return "ru";
-    return "en";
+    if (raw === "hy" || raw.startsWith("hy-") || raw === "arm" || raw === "am") {
+      return "hy";
+    }
+    if (raw === "ru" || raw.startsWith("ru-")) return "ru";
+    if (raw === "en" || raw.startsWith("en-")) return "en";
+    return null;
   }
 
-  const locale = detectLocale();
-  const dict = dictionaries[locale] || dictionaries.en;
+  function dictFor(nextLocale) {
+    return dictionaries[nextLocale] || dictionaries.en;
+  }
 
   function t(key) {
+    const dict = dictFor(locale);
     return dict[key] ?? dictionaries.en[key] ?? key;
   }
 
@@ -160,15 +230,48 @@
     });
   }
 
-  window.I18N = { locale, t, apply, dictionaries };
-
-  // Set language immediately; apply copy once the DOM exists.
-  document.documentElement.lang = locale;
-  document.documentElement.dataset.locale = locale;
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", apply, { once: true });
-  } else {
+  function setLocale(nextLocale, { persist = true } = {}) {
+    const normalized = normalizeLocale(nextLocale) || "en";
+    locale = normalized;
+    localeChosen = true;
+    if (persist) {
+      try {
+        localStorage.setItem(STORAGE_KEY, locale);
+      } catch (_) {
+        /* private mode */
+      }
+    }
     apply();
+    window.dispatchEvent(
+      new CustomEvent("i18n:ready", { detail: { locale } })
+    );
+    return locale;
   }
+
+  function getStoredLocale() {
+    try {
+      return normalizeLocale(localStorage.getItem(STORAGE_KEY));
+    } catch (_) {
+      return null;
+    }
+  }
+
+  window.I18N = {
+    get locale() {
+      return locale;
+    },
+    get localeChosen() {
+      return localeChosen;
+    },
+    t,
+    apply,
+    setLocale,
+    getStoredLocale,
+    dictionaries,
+    STORAGE_KEY,
+  };
+
+  // Do not lock copy to a language until the guest chooses one.
+  document.documentElement.lang = "en";
+  document.documentElement.dataset.locale = "en";
 })();

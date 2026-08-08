@@ -255,8 +255,7 @@
     }
 
     function setPoint(type, index, x, y) {
-      x = Math.min(VIEW_X + VIEW_W + 20, Math.max(VIEW_X - 20, x));
-      y = Math.min(VIEW_H + 80, Math.max(-80, y));
+      // No hard bounds — drag freely past the road strip edges.
       if (type === "start") {
         model.start = [x, y];
         return;
@@ -391,10 +390,19 @@
       window.requestAnimationFrame(renderHandles);
     });
 
-    const gate = document.getElementById("invite-gate");
     if (gate) {
       gate.hidden = true;
       gate.style.display = "none";
+      document.documentElement.classList.remove("is-gated");
+      document.body.classList.remove("is-gated");
+    }
+    const langGate = document.getElementById("lang-gate");
+    if (langGate) {
+      langGate.hidden = true;
+      langGate.style.display = "none";
+    }
+    if (!window.I18N?.localeChosen) {
+      window.I18N?.setLocale?.(window.I18N.getStoredLocale?.() || "en");
     }
 
     window.setTimeout(() => {

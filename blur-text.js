@@ -54,7 +54,13 @@
     if (el.hasAttribute("data-blur-wrap")) {
       el.classList.add("blur-text--wrap");
     }
-    el.style.justifyContent = justifyFromTextAlign(el);
+    // Flex parents collapse spaces between SplitText word spans.
+    if (!el.classList.contains("invite__message")) {
+      el.style.justifyContent = justifyFromTextAlign(el);
+    } else {
+      el.style.textAlign = "center";
+      el.style.removeProperty("justify-content");
+    }
 
     if (reducedMotion || !gsapLib || !SplitTextLib) {
       el._splitPrepared = true;
@@ -200,6 +206,8 @@
     const splitEls = Array.from(document.querySelectorAll("[data-blur]"));
     splitEls.forEach(prepare);
 
+    window.fitInviteMessage?.();
+
     const units = Array.from(document.querySelectorAll(unitSelector));
     if (!units.length) return;
 
@@ -251,8 +259,23 @@
     setTimeout(finish, 1200);
   }
 
-  whenReady(() => requestAnimationFrame(init));
-  window.addEventListener("load", () => {
+  function boot() {
+    // Wait until the guest picks a language so SplitText reads final copy.
+    if (!window.I18N?.localeChosen) {
+      window.addEventListener(
+        "i18n:ready",
+        () => whenReady(() => requestAnimationFrame(init)),
+        { once: true }
+      );
+      return;
+    }
     whenReady(() => requestAnimationFrame(init));
+  }
+
+  boot();
+  window.addEventListener("load", () => {
+    if (window.I18N?.localeChosen) {
+      whenReady(() => requestAnimationFrame(init));
+    }
   });
 })();

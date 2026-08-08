@@ -1,6 +1,7 @@
 (() => {
   const audio = document.getElementById("site-music");
   const toggle = document.getElementById("music-toggle");
+  const langGate = document.getElementById("lang-gate");
   const gate = document.getElementById("invite-gate");
   const gateOpen = document.getElementById("invite-gate-open");
   if (!audio || !toggle) return;
@@ -9,15 +10,14 @@
   let unlocked = false;
   let wantPlay = localStorage.getItem(storageKey) !== "1";
   let gateClosed = false;
+  let langChosen = false;
 
   function syncUi(playing) {
     toggle.classList.toggle("is-playing", playing);
     toggle.classList.toggle("is-muted", !playing);
     toggle.setAttribute("aria-pressed", playing ? "true" : "false");
-    const playLabel =
-      window.I18N?.t("music.play") || "Play music";
-    const muteLabel =
-      window.I18N?.t("music.mute") || "Mute music";
+    const playLabel = window.I18N?.t("music.play") || "Play music";
+    const muteLabel = window.I18N?.t("music.mute") || "Mute music";
     toggle.setAttribute("aria-label", playing ? muteLabel : playLabel);
   }
 
@@ -58,11 +58,49 @@
     markPlaying();
   }
 
+  function isIntroBlocking() {
+    const langOpen = Boolean(langGate && !langGate.hidden && !langChosen);
+    const inviteOpen = Boolean(gate && !gateClosed && !gate.hidden);
+    return langOpen || inviteOpen;
+  }
+
+  function lockScroll() {
+    document.documentElement.classList.add("is-gated");
+    document.body.classList.add("is-gated");
+    window.scrollTo(0, 0);
+  }
+
+  function unlockScroll() {
+    document.documentElement.classList.remove("is-gated");
+    document.body.classList.remove("is-gated");
+  }
+
+  function blockScrollGesture(event) {
+    if (!isIntroBlocking()) return;
+    event.preventDefault();
+  }
+
+  function showInviteGate() {
+    if (!gate) return;
+    gate.hidden = false;
+    gate.classList.remove("is-leaving");
+    gateOpen?.focus?.({ preventScroll: true });
+  }
+
+  function closeLangGate() {
+    if (!langGate) return;
+    langGate.classList.add("is-leaving");
+    window.setTimeout(() => {
+      langGate.hidden = true;
+      langGate.classList.remove("is-leaving");
+    }, 520);
+  }
+
   function closeGate() {
     if (!gate || gateClosed) return;
     gateClosed = true;
     gate.classList.add("is-leaving");
-    document.body.classList.remove("is-gated");
+    unlockScroll();
     window.setTimeout(() => {
       gate.hidden = true;
       gate.classList.remove("is-leaving");
@@ -70,11 +108,18 @@
   }
 
   function openInvite() {
-    if (gateClosed) return;
-
-    // Always try to start music on the opening tap (Safari-friendly).
+    if (!langChosen || gateClosed) return;
     playFromGesture();
     closeGate();
+  }
+
+  function chooseLanguage(locale) {
+    if (langChosen) return;
+    langChosen = true;
+    window.I18N?.setLocale?.(locale);
+    syncUi(false);
+    closeLangGate();
+    showInviteGate();
   }
 
   function toggleMusic(event) {
@@ -87,10 +132,37 @@
   }
 
   syncUi(false);
+  lockScroll();
+  document.addEventListener("touchmove", blockScrollGesture, { passive: false });
+  document.addEventListener("wheel", blockScrollGesture, { passive: false });
+
+  if (langGate) {
+    // Language first; invite gate waits behind it.
+    if (gate) gate.hidden = true;
+    langGate.hidden = false;
+
+    const stored = window.I18N?.getStoredLocale?.();
+    if (stored) {
+      langGate.querySelectorAll("[data-lang]").forEach((btn) => {
+        btn.classList.toggle("is-active", btn.getAttribute("data-lang") === stored);
+      });
+    }
+
+    langGate.querySelectorAll("[data-lang]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const locale = btn.getAttribute("data-lang");
+        if (!locale) return;
+        chooseLanguage(locale);
+      });
+    });
+  } else if (gate && gateOpen) {
+    // Fallback if language screen is missing.
+    langChosen = true;
+    window.I18N?.setLocale?.(window.I18N.getStoredLocale?.() || "en");
+    showInviteGate();
+  }
 
   if (gate && gateOpen) {
-    document.body.classList.add("is-gated");
-    // click only — pointerdown + preventDefault breaks Safari audio unlock
     gateOpen.addEventListener("click", openInvite);
     gate.addEventListener("keydown", (event) => {
       if (event.key === "Enter" || event.key === " ") {

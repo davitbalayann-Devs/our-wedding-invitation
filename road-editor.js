@@ -2,8 +2,20 @@
   const VIEW_X = -80;
   const VIEW_W = 260;
   const VIEW_H = 1000;
-  const POINTS_URL = "way-road-points.json";
-  const SAVE_URL = "/api/road-points";
+  const params = new URLSearchParams(window.location.search);
+  const noVilla = params.has("no-villa");
+  const VARIANT = noVilla ? "no-villa" : "full";
+  const POINTS_URL = noVilla
+    ? "way-road-points-no-villa.json"
+    : "way-road-points.json";
+  const SAVE_URL = `/api/road-points?variant=${encodeURIComponent(VARIANT)}`;
+  const POINTS_FILE = noVilla
+    ? "way-road-points-no-villa.json"
+    : "way-road-points.json";
+
+  if (noVilla) {
+    document.documentElement.classList.add("no-villa");
+  }
 
   function modelFromJson(data) {
     if (!data?.start || !Array.isArray(data.segments)) return null;
@@ -32,7 +44,10 @@
     return {
       viewBox: [VIEW_X, 0, VIEW_W, VIEW_H],
       strokeWidth: n(strokeWidth),
-      note: "Auto-saved by road-editor.html. Main site reads this file.",
+      variant: VARIANT,
+      note: noVilla
+        ? "Auto-saved by road-editor.html?no-villa=1. Used by ?no-villa=1 invite."
+        : "Auto-saved by road-editor.html. Main site reads this file.",
       start: { x: n(model.start[0]), y: n(model.start[1]) },
       segments: model.cubics.map((c, i) => ({
         id: i + 1,
@@ -45,7 +60,7 @@
 
   async function loadPoints() {
     const res = await fetch(`${POINTS_URL}?t=${Date.now()}`, { cache: "no-store" });
-    if (!res.ok) throw new Error("Cannot load way-road-points.json");
+    if (!res.ok) throw new Error(`Cannot load ${POINTS_FILE}`);
     return modelFromJson(await res.json());
   }
 
@@ -70,7 +85,19 @@
     const statusEl = document.querySelector("[data-road-status]");
     const widthInput = document.querySelector('[data-edit="width"]');
     const widthOut = document.querySelector('[data-edit="width-out"]');
+    const titleEl = document.querySelector("[data-road-editor-title]");
+    const previewLink = document.querySelector("[data-road-preview]");
     if (!road || !bed || !dash || !stage || !widthInput || !widthOut) return;
+
+    if (titleEl) {
+      titleEl.textContent = noVilla
+        ? "Редактор дороги (no-villa)"
+        : "Редактор дороги";
+    }
+    if (previewLink) {
+      previewLink.href = noVilla ? "./?no-villa=1" : "./";
+      previewLink.textContent = noVilla ? "Сайт ?no-villa=1" : "Открыть сайт";
+    }
 
     let model;
     let strokeWidth = 7.5;
@@ -120,13 +147,10 @@
         try {
           await savePoints(payload);
           if (seq !== saveSeq) return;
-          setStatus("Saved → way-road-points.json (main site uses this)", "ok");
+          setStatus(`Saved → ${POINTS_FILE}`, "ok");
         } catch (err) {
           if (seq !== saveSeq) return;
-          setStatus(
-            `${err.message}. Run: python3 serve.py`,
-            "error"
-          );
+          setStatus(`${err.message}. Run: python3 serve.py`, "error");
         }
       }, 280);
     }
@@ -214,9 +238,7 @@
     }
 
     function setPoint(type, index, x, y) {
-      // Keep points inside the expanded viewBox with a little margin.
-      x = Math.min(VIEW_X + VIEW_W + 20, Math.max(VIEW_X - 20, x));
-      y = Math.min(VIEW_H + 80, Math.max(-80, y));
+      // No hard bounds — drag freely past the road strip edges.
       if (type === "start") {
         model.start = [x, y];
         return;
@@ -252,7 +274,7 @@
         model = { start: loaded.start, cubics: loaded.cubics };
         strokeWidth = loaded.strokeWidth;
         refresh(false);
-        setStatus("Reloaded from file", "ok");
+        setStatus(`Reloaded ${POINTS_FILE}`, "ok");
       } catch (err) {
         setStatus(String(err.message || err), "error");
       }
@@ -340,11 +362,15 @@
       }).observe(road);
     }
 
-    // Pin road after layout like the invite page.
     window.dispatchEvent(new Event("resize"));
     window.setTimeout(() => {
       refresh(false);
-      setStatus("Drag points — changes save automatically", "ok");
+      setStatus(
+        noVilla
+          ? "no-villa editor — drag points, auto-saves"
+          : "Drag points — changes save automatically",
+        "ok"
+      );
     }, 220);
   }
 

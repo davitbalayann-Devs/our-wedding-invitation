@@ -3,13 +3,22 @@
   const road = document.querySelector(".way__mobile-road--full");
   const bed = road?.querySelector(".way__mobile-road-bed");
   const dash = road?.querySelector(".way__mobile-road-dash");
+  const noVilla = document.documentElement.classList.contains("no-villa");
   const villaArt = document.querySelector(".way__card--villa .way__card-art");
+  const churchArt = document.querySelector(".way__card--church .way__card-art");
+  const soloLeg = document.querySelector(".way__mobile-leg--church");
   const restaurantArt = document.querySelector(
     ".way__card--restaurant .way__card-art"
   );
-  if (!stage || !road || !villaArt || !restaurantArt) return;
+
+  const startArt = noVilla ? soloLeg || churchArt : villaArt;
+  if (!stage || !road || !startArt || !restaurantArt) return;
 
   const mobileQuery = window.matchMedia("(max-width: 860px)");
+  const POINTS_URL = noVilla
+    ? "way-road-points-no-villa.json"
+    : "way-road-points.json";
+  const VIEWBOX = "-80 0 260 1000";
   let raf = 0;
   let lastWidth = window.innerWidth;
 
@@ -26,7 +35,7 @@
   async function applyRoadPoints() {
     if (!bed || !dash) return;
     try {
-      const res = await fetch(`way-road-points.json?t=${Date.now()}`, {
+      const res = await fetch(`${POINTS_URL}?t=${Date.now()}`, {
         cache: "no-store",
       });
       if (!res.ok) return;
@@ -35,6 +44,7 @@
       if (!d) return;
       bed.setAttribute("d", d);
       dash.setAttribute("d", d);
+      road.setAttribute("viewBox", VIEWBOX);
       const width = Number(data.strokeWidth);
       if (Number.isFinite(width) && width > 0) {
         bed.style.strokeWidth = String(width);
@@ -57,11 +67,15 @@
     }
 
     const stageRect = stage.getBoundingClientRect();
-    const villaRect = villaArt.getBoundingClientRect();
+    const startRect = startArt.getBoundingClientRect();
     const restRect = restaurantArt.getBoundingClientRect();
 
-    // Start mid-villa art, end under restaurant art (not the address text).
-    const top = villaRect.top - stageRect.top + villaRect.height * 0.45;
+    let top;
+    if (noVilla) {
+      top = startRect.top - stageRect.top + startRect.height * 0.15;
+    } else {
+      top = startRect.top - stageRect.top + startRect.height * 0.45;
+    }
     const bottom = restRect.top - stageRect.top + restRect.height * 0.78;
     const height = Math.max(180, bottom - top);
 
@@ -83,7 +97,6 @@
     const editing =
       document.documentElement.classList.contains("way-edit") ||
       document.documentElement.classList.contains("road-editor");
-    // Ignore Safari chrome height-only resizes (unless editing).
     if (width === lastWidth && mobileQuery.matches && !editing) return;
     lastWidth = width;
     requestLayout();
@@ -115,7 +128,7 @@
 
   if ("ResizeObserver" in window) {
     new ResizeObserver(requestLayout).observe(stage);
-    new ResizeObserver(requestLayout).observe(villaArt);
+    new ResizeObserver(requestLayout).observe(startArt);
     new ResizeObserver(requestLayout).observe(restaurantArt);
   }
 })();
