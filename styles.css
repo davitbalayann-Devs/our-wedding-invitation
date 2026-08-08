@@ -3097,12 +3097,16 @@ html[lang="hy"] .hero__eyebrow {
 }
 
 html[lang="hy"] .hero__eyebrow.blur-text {
-  display: flex;
+  display: inline-block;
   width: max-content;
   max-width: 100%;
-  justify-content: center;
-  flex-wrap: nowrap;
   white-space: nowrap;
+  flex-wrap: nowrap;
+}
+
+/* Flex/inline-block splits drop inter-word spaces — restore them */
+html[lang="hy"] .hero__eyebrow .blur-segment + .blur-segment {
+  margin-inline-start: 0.28em;
 }
 
 html[lang="hy"] .invite__message {
